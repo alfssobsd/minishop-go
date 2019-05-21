@@ -2,8 +2,10 @@ package usecases
 
 import (
 	_mongoRepsitories "github.com/alfssobsd/minishop/dataproviders/mongodb"
+	_repoEntities "github.com/alfssobsd/minishop/dataproviders/mongodb/entities"
 	"github.com/alfssobsd/minishop/usecases/entities"
 	"github.com/labstack/gommon/log"
+	uuid "github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2"
 )
 
@@ -25,7 +27,37 @@ func SearchGoodsUseCase(db *mgo.Session) []entities.GoodsUseCaseEntity {
 
 	return resultEntities
 }
-func ShowGoodsDetailInfoUseCase(id string) string {
+func ShowGoodsDetailInfoUseCase(db *mgo.Session, id string) entities.GoodsUseCaseEntity {
 	log.Info("ShowGoodsDetailInfoUseCase id = ", id)
-	return "Detail Info"
+
+	goodsItem := _mongoRepsitories.FindGoodsById(db, id)
+
+	return entities.GoodsUseCaseEntity{
+		GoodsId:         goodsItem.GoodsID,
+		GoodsPrice:      goodsItem.GoodsPrice,
+		GoodsDescrition: goodsItem.GoodsDescrition,
+		GoodsTitle:      goodsItem.GoodsTitle,
+		GoodsCodeName:   goodsItem.GoodsCodeName,
+	}
+}
+
+func CreateGoodsUseCase(db *mgo.Session, goodsEntity entities.GoodsUseCaseEntity) entities.GoodsUseCaseEntity {
+	id := uuid.NewV4().String()
+	log.Info("CreateGoodsUseCase id = ", id)
+	_mongoRepsitories.CreateGoods(db, _repoEntities.GoodsEntity{
+		GoodsID:         id,
+		GoodsDescrition: goodsEntity.GoodsDescrition,
+		GoodsCodeName:   goodsEntity.GoodsCodeName,
+		GoodsPrice:      goodsEntity.GoodsPrice,
+		GoodsTitle:      goodsEntity.GoodsTitle,
+	})
+
+	goodsItem := _mongoRepsitories.FindGoodsById(db, id)
+	return entities.GoodsUseCaseEntity{
+		GoodsId:         goodsItem.GoodsID,
+		GoodsPrice:      goodsItem.GoodsPrice,
+		GoodsDescrition: goodsItem.GoodsDescrition,
+		GoodsTitle:      goodsItem.GoodsTitle,
+		GoodsCodeName:   goodsItem.GoodsCodeName,
+	}
 }

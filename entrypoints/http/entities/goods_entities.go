@@ -13,3 +13,10 @@ type HttpGoodsResponseEntity struct {
 	GoodsDescription string  `json:"goods_description"`
 	GoodsPrice       float64 `json:"goods_price"`
 }
+
+type HttpGoodsRequestEntity struct {
+	GoodsCodeName    string  `json:"goods_code_name"`
+	GoodsTitle       string  `json:"goods_title"`
+	GoodsDescription string  `json:"goods_description"`
+	GoodsPrice       float64 `json:"goods_price"`
+}
