@@ -6,12 +6,11 @@ import (
 	"github.com/alfssobsd/minishop/usecases/entities"
 	"github.com/labstack/gommon/log"
 	uuid "github.com/satori/go.uuid"
-	"gopkg.in/mgo.v2"
 )
 
-func SearchGoodsUseCase(db *mgo.Session) []entities.GoodsUseCaseEntity {
+func SearchGoodsUseCase() []entities.GoodsUseCaseEntity {
 	log.Info("SearchGoodsUseCase")
-	goodsEntities := _mongoRepsitories.FindAllGoods(db)
+	goodsEntities := _mongoRepsitories.FindAllGoods()
 
 	resultEntities := []entities.GoodsUseCaseEntity{}
 	for _, element := range goodsEntities {
@@ -27,11 +26,10 @@ func SearchGoodsUseCase(db *mgo.Session) []entities.GoodsUseCaseEntity {
 
 	return resultEntities
 }
-func ShowGoodsDetailInfoUseCase(db *mgo.Session, id string) entities.GoodsUseCaseEntity {
+func ShowGoodsDetailInfoUseCase(id string) entities.GoodsUseCaseEntity {
 	log.Info("ShowGoodsDetailInfoUseCase id = ", id)
 
-	goodsItem := _mongoRepsitories.FindGoodsById(db, id)
-
+	goodsItem := _mongoRepsitories.FindGoodsById(id)
 	return entities.GoodsUseCaseEntity{
 		GoodsId:         goodsItem.GoodsID,
 		GoodsPrice:      goodsItem.GoodsPrice,
@@ -41,10 +39,10 @@ func ShowGoodsDetailInfoUseCase(db *mgo.Session, id string) entities.GoodsUseCas
 	}
 }
 
-func CreateGoodsUseCase(db *mgo.Session, goodsEntity entities.GoodsUseCaseEntity) entities.GoodsUseCaseEntity {
+func CreateGoodsUseCase(goodsEntity entities.GoodsUseCaseEntity) entities.GoodsUseCaseEntity {
 	id := uuid.NewV4().String()
 	log.Info("CreateGoodsUseCase id = ", id)
-	_mongoRepsitories.CreateGoods(db, _repoEntities.GoodsEntity{
+	_mongoRepsitories.CreateGoods(_repoEntities.GoodsEntity{
 		GoodsID:         id,
 		GoodsDescrition: goodsEntity.GoodsDescrition,
 		GoodsCodeName:   goodsEntity.GoodsCodeName,
@@ -52,7 +50,7 @@ func CreateGoodsUseCase(db *mgo.Session, goodsEntity entities.GoodsUseCaseEntity
 		GoodsTitle:      goodsEntity.GoodsTitle,
 	})
 
-	goodsItem := _mongoRepsitories.FindGoodsById(db, id)
+	goodsItem := _mongoRepsitories.FindGoodsById(id)
 	return entities.GoodsUseCaseEntity{
 		GoodsId:         goodsItem.GoodsID,
 		GoodsPrice:      goodsItem.GoodsPrice,

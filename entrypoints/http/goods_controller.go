@@ -6,26 +6,25 @@ import (
 	entities2 "github.com/alfssobsd/minishop/usecases/entities"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
-	"gopkg.in/mgo.v2"
 	"net/http"
 )
 
-func GoodsRoutes(e *echo.Echo, db *mgo.Session) {
-	e.GET("/goods", func(c echo.Context) error {
-		return listGoodsController(c, db)
+func GoodsRoutes(e *echo.Echo) {
+	e.GET("/api/v1/goods", func(c echo.Context) error {
+		return listGoodsController(c)
 	})
-	e.GET("/goods/:id", func(c echo.Context) error {
-		return showGoodsDetailInfoController(c, db)
+	e.GET("/api/v1/goods/:id", func(c echo.Context) error {
+		return showGoodsDetailInfoController(c)
 	})
 
-	e.POST("/goods", func(c echo.Context) error {
-		return createGoodsController(c, db)
+	e.POST("/api/v1/goods", func(c echo.Context) error {
+		return createGoodsController(c)
 	})
 }
 
-func listGoodsController(c echo.Context, db *mgo.Session) error {
+func listGoodsController(c echo.Context) error {
 	log.Info("listGoodsController")
-	goodsList := _goodsUsecases.SearchGoodsUseCase(db)
+	goodsList := _goodsUsecases.SearchGoodsUseCase()
 	responseGoodsList := []entities.HttpGoodsResponseEntity{}
 	for _, element := range goodsList {
 		responseGoodsList = append(responseGoodsList, entities.HttpGoodsResponseEntity{
@@ -43,9 +42,9 @@ func listGoodsController(c echo.Context, db *mgo.Session) error {
 	})
 }
 
-func showGoodsDetailInfoController(c echo.Context, db *mgo.Session) error {
+func showGoodsDetailInfoController(c echo.Context) error {
 	id := c.Param("id")
-	item := _goodsUsecases.ShowGoodsDetailInfoUseCase(db, id)
+	item := _goodsUsecases.ShowGoodsDetailInfoUseCase(id)
 	return c.JSON(http.StatusOK, entities.HttpGoodsResponseEntity{
 		GoodsId:          item.GoodsId,
 		GoodsCodeName:    item.GoodsCodeName,
@@ -55,13 +54,13 @@ func showGoodsDetailInfoController(c echo.Context, db *mgo.Session) error {
 	})
 }
 
-func createGoodsController(c echo.Context, db *mgo.Session) error {
+func createGoodsController(c echo.Context) error {
 
 	r := new(entities.HttpGoodsRequestEntity)
 	_ = c.Bind(r)
 	log.Info("createGoodsController ", r)
 
-	item := _goodsUsecases.CreateGoodsUseCase(db, entities2.GoodsUseCaseEntity{
+	item := _goodsUsecases.CreateGoodsUseCase(entities2.GoodsUseCaseEntity{
 		GoodsTitle:      r.GoodsTitle,
 		GoodsCodeName:   r.GoodsCodeName,
 		GoodsPrice:      r.GoodsPrice,
