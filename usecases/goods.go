@@ -70,8 +70,8 @@ func (goodsUseCase *GoodsUseCase) CreateGoodsUseCase(goodsEntity entities.GoodsU
 	}
 }
 
-func (goodsUseCase *GoodsUseCase) CreateFromExcel(pathToExcel string) []entities.GoodsUseCaseEntity {
-	log.Info("CreateFromExcel")
+func (goodsUseCase *GoodsUseCase) CreateFromExcelUseCase(pathToExcel string) []entities.GoodsUseCaseEntity {
+	log.Info("CreateFromExcelUseCase")
 	xlFile, err := xlsx.OpenFile(pathToExcel)
 	if err != nil {
 		log.Fatal(err)

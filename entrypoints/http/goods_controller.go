@@ -116,7 +116,7 @@ func createGoodsFromExcelController(c echo.Context, goodsUseCase *_goodsUC.Goods
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	goodsList := goodsUseCase.CreateFromExcel(tmpfile.Name())
+	goodsList := goodsUseCase.CreateFromExcelUseCase(tmpfile.Name())
 	var responseGoodsList []entities.HttpGoodsResponseEntity
 	for _, element := range goodsList {
 		responseGoodsList = append(responseGoodsList, entities.HttpGoodsResponseEntity{
