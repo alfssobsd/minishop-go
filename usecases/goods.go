@@ -6,6 +6,7 @@ import (
 	"github.com/alfssobsd/minishop/usecases/entities"
 	"github.com/labstack/gommon/log"
 	uuid "github.com/satori/go.uuid"
+	"github.com/tealeg/xlsx"
 )
 
 type GoodsUseCase struct {
@@ -67,4 +68,37 @@ func (goodsUseCase *GoodsUseCase) CreateGoodsUseCase(goodsEntity entities.GoodsU
 		GoodsTitle:      goodsResultEntity.GoodsTitle,
 		GoodsCodeName:   goodsResultEntity.GoodsCodeName,
 	}
+}
+
+func (goodsUseCase *GoodsUseCase) CreateFromExcel(pathToExcel string) []entities.GoodsUseCaseEntity {
+	log.Info("CreateFromExcel")
+	xlFile, err := xlsx.OpenFile(pathToExcel)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, sheet := range xlFile.Sheets {
+		for index, row := range sheet.Rows {
+
+			goods := goodsUseCase.goodsRepository.FindByCodeName(row.Cells[0].String())
+			if goods != nil {
+				log.Info("Goods ", row.Cells[0].String(), " already added")
+				continue
+			}
+
+			price, err := row.Cells[3].Float()
+			if err != nil {
+				log.Error("Can't parse pice in row = ", index)
+				continue
+			}
+			goodsUseCase.CreateGoodsUseCase(entities.GoodsUseCaseEntity{
+				GoodsCodeName:   row.Cells[0].String(),
+				GoodsTitle:      row.Cells[1].String(),
+				GoodsDescrition: row.Cells[2].String(),
+				GoodsPrice:      price,
+			})
+		}
+	}
+
+	return goodsUseCase.SearchGoodsUseCase()
 }

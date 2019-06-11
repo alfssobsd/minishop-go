@@ -8,6 +8,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
 	"gopkg.in/mgo.v2"
+	"io"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -26,12 +28,19 @@ func GoodsRoutes(e *echo.Echo, mgoSession *mgo.Session) {
 	e.POST("/api/v1/goods", func(c echo.Context) error {
 		return createGoodsController(c, goodsUseCase)
 	})
+
+	e.POST("/api/v1/goods/excel", func(c echo.Context) error {
+		return createGoodsFromExcelController(c, goodsUseCase)
+	})
 }
 
 func listGoodsController(c echo.Context, goodsUseCase *_goodsUC.GoodsUseCase) error {
 	log.Info("listGoodsController")
+
 	goodsList := goodsUseCase.SearchGoodsUseCase()
 	var responseGoodsList []entities.HttpGoodsResponseEntity
+	responseGoodsList = []entities.HttpGoodsResponseEntity{}
+
 	for _, element := range goodsList {
 		responseGoodsList = append(responseGoodsList, entities.HttpGoodsResponseEntity{
 			GoodsId:          element.GoodsId,
@@ -79,5 +88,48 @@ func createGoodsController(c echo.Context, goodsUseCase *_goodsUC.GoodsUseCase) 
 		GoodsTitle:       goodsEntity.GoodsTitle,
 		GoodsDescription: goodsEntity.GoodsDescrition,
 		GoodsPrice:       goodsEntity.GoodsPrice,
+	})
+}
+
+func createGoodsFromExcelController(c echo.Context, goodsUseCase *_goodsUC.GoodsUseCase) error {
+	log.Info("createGoodsFromExcelController ")
+
+	//prepare temp file for parsing
+	file, err := c.FormFile("file")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	defer src.Close()
+
+	tmpfile, err := ioutil.TempFile("", "goods.*.xlsx")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	if _, err = io.Copy(tmpfile, src); err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	goodsList := goodsUseCase.CreateFromExcel(tmpfile.Name())
+	var responseGoodsList []entities.HttpGoodsResponseEntity
+	for _, element := range goodsList {
+		responseGoodsList = append(responseGoodsList, entities.HttpGoodsResponseEntity{
+			GoodsId:          element.GoodsId,
+			GoodsCodeName:    element.GoodsCodeName,
+			GoodsTitle:       element.GoodsTitle,
+			GoodsDescription: element.GoodsDescrition,
+			GoodsPrice:       element.GoodsPrice,
+		})
+	}
+	return c.JSON(http.StatusOK, entities.HttpGoodsListResponseEntity{
+		Total:  len(responseGoodsList),
+		Offset: 0,
+		Items:  responseGoodsList,
 	})
 }
