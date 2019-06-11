@@ -7,22 +7,29 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type GoodsRepository struct {
+type GoodsRepository interface {
+	FindAll() []*entities.GoodsEntity
+	CreateOne(entities.GoodsEntity)
+	FindById(id string) *entities.GoodsEntity
+	FindByCodeName(codeName string) *entities.GoodsEntity
+}
+
+type goodsRepository struct {
 	mgoSession *mgo.Session
 }
 
-func NewGoodsRepository(mgoSession *mgo.Session) *GoodsRepository {
-	return &GoodsRepository{mgoSession: mgoSession}
+func NewGoodsRepository(mgoSession *mgo.Session) *goodsRepository {
+	return &goodsRepository{mgoSession: mgoSession}
 }
 
-func (repository *GoodsRepository) CreateOne(goodsEntity entities.GoodsEntity) {
+func (repository *goodsRepository) CreateOne(goodsEntity entities.GoodsEntity) {
 	log.Info("CreateGoods ", goodsEntity)
 	mgoSession := repository.mgoSession.Clone()
 	defer mgoSession.Close()
 	_ = mgoSession.DB("minishop").C("goods").Insert(goodsEntity)
 }
 
-func (repository *GoodsRepository) FindById(id string) *entities.GoodsEntity {
+func (repository *goodsRepository) FindById(id string) *entities.GoodsEntity {
 	log.Info("FindById ", id)
 	mgoSession := repository.mgoSession.Clone()
 	defer mgoSession.Close()
@@ -33,7 +40,7 @@ func (repository *GoodsRepository) FindById(id string) *entities.GoodsEntity {
 	return goodsItem
 }
 
-func (repository *GoodsRepository) FindByCodeName(codeName string) *entities.GoodsEntity {
+func (repository *goodsRepository) FindByCodeName(codeName string) *entities.GoodsEntity {
 	log.Info("FindByCodeName ", codeName)
 	mgoSession := repository.mgoSession.Clone()
 	defer mgoSession.Close()
@@ -44,7 +51,7 @@ func (repository *GoodsRepository) FindByCodeName(codeName string) *entities.Goo
 	return goodsItem
 }
 
-func (repository *GoodsRepository) FindAll() []*entities.GoodsEntity {
+func (repository *goodsRepository) FindAll() []*entities.GoodsEntity {
 	log.Info("FindAll ")
 	mgoSession := repository.mgoSession.Clone()
 	defer mgoSession.Close()

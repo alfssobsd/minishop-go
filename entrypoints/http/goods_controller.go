@@ -34,7 +34,7 @@ func GoodsRoutes(e *echo.Echo, mgoSession *mgo.Session) {
 	})
 }
 
-func listGoodsController(c echo.Context, goodsUseCase *_goodsUC.GoodsUseCase) error {
+func listGoodsController(c echo.Context, goodsUseCase _goodsUC.GoodsUseCase) error {
 	log.Info("listGoodsController")
 
 	goodsList := goodsUseCase.SearchGoodsUseCase()
@@ -57,7 +57,7 @@ func listGoodsController(c echo.Context, goodsUseCase *_goodsUC.GoodsUseCase) er
 	})
 }
 
-func showGoodsDetailInfoController(c echo.Context, goodsUseCase *_goodsUC.GoodsUseCase) error {
+func showGoodsDetailInfoController(c echo.Context, goodsUseCase _goodsUC.GoodsUseCase) error {
 	id := c.Param("id")
 	item := goodsUseCase.ShowGoodsDetailInfoUseCase(id)
 	return c.JSON(http.StatusOK, entities.HttpGoodsResponseEntity{
@@ -69,7 +69,7 @@ func showGoodsDetailInfoController(c echo.Context, goodsUseCase *_goodsUC.GoodsU
 	})
 }
 
-func createGoodsController(c echo.Context, goodsUseCase *_goodsUC.GoodsUseCase) error {
+func createGoodsController(c echo.Context, goodsUseCase _goodsUC.GoodsUseCase) error {
 
 	r := new(entities.HttpGoodsRequestEntity)
 	_ = c.Bind(r)
@@ -91,7 +91,7 @@ func createGoodsController(c echo.Context, goodsUseCase *_goodsUC.GoodsUseCase) 
 	})
 }
 
-func createGoodsFromExcelController(c echo.Context, goodsUseCase *_goodsUC.GoodsUseCase) error {
+func createGoodsFromExcelController(c echo.Context, goodsUseCase _goodsUC.GoodsUseCase) error {
 	log.Info("createGoodsFromExcelController ")
 
 	//prepare temp file for parsing
@@ -105,7 +105,9 @@ func createGoodsFromExcelController(c echo.Context, goodsUseCase *_goodsUC.Goods
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	defer src.Close()
+	defer func() {
+		_ = src.Close()
+	}()
 
 	tmpfile, err := ioutil.TempFile("", "goods.*.xlsx")
 	if err != nil {
