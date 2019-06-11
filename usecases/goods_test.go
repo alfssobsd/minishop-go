@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"github.com/alfssobsd/minishop/dataproviders/mongodb"
 	_repoEntities "github.com/alfssobsd/minishop/dataproviders/mongodb/entities"
 	"github.com/alfssobsd/minishop/usecases/entities"
 	"github.com/stretchr/testify/assert"
@@ -9,6 +10,7 @@ import (
 )
 
 type MockRepo struct {
+	mongodb.GoodsRepository
 }
 
 func (m MockRepo) FindById(id string) *_repoEntities.GoodsEntity {
@@ -19,16 +21,6 @@ func (m MockRepo) FindById(id string) *_repoEntities.GoodsEntity {
 		GoodsDescrition: "Милый плющевый медведь",
 		GoodsPrice:      255.5,
 	}
-}
-
-func (m MockRepo) CreateOne(_repoEntities.GoodsEntity) {
-}
-func (m MockRepo) FindAll() []*_repoEntities.GoodsEntity {
-	return []*_repoEntities.GoodsEntity{}
-}
-
-func (m MockRepo) FindByCodeName(codeName string) *_repoEntities.GoodsEntity {
-	return &_repoEntities.GoodsEntity{}
 }
 
 func TestCorrectReturnFormatShowGoodsDetailInfoUseCase(t *testing.T) {
