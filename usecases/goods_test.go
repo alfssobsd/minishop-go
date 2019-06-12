@@ -1,8 +1,8 @@
 package usecases
 
 import (
-	"github.com/alfssobsd/minishop/dataproviders/mongodb"
-	_repoEntities "github.com/alfssobsd/minishop/dataproviders/mongodb/entities"
+	"github.com/alfssobsd/minishop/dataproviders/postgres"
+	_repoEntities "github.com/alfssobsd/minishop/dataproviders/postgres/entities"
 	"github.com/alfssobsd/minishop/usecases/entities"
 	"github.com/stretchr/testify/assert"
 	//"github.com/stretchr/testify/mock"
@@ -10,7 +10,7 @@ import (
 )
 
 type MockRepo struct {
-	mongodb.GoodsRepository
+	postgres.GoodsRepository
 }
 
 func (m MockRepo) FindById(id string) *_repoEntities.GoodsEntity {
