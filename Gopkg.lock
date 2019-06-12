@@ -18,6 +18,17 @@
   version = "v3.2.0"
 
 [[projects]]
+  digest = "1:6c41d4f998a03b6604227ccad36edaed6126c397e5d78709ef4814a1145a6757"
+  name = "github.com/jmoiron/sqlx"
+  packages = [
+    ".",
+    "reflectx",
+  ]
+  pruneopts = "UT"
+  revision = "d161d7a76b5661016ad0b085869f77fd410f3e6a"
+  version = "v1.2.0"
+
+[[projects]]
   digest = "1:efd601ad1d1189884f37ed075fadb5bbd17f1f5acf5862827247c6da56d125ba"
   name = "github.com/labstack/echo"
   packages = [
@@ -40,6 +51,18 @@
   pruneopts = "UT"
   revision = "7fd9f68ece0bcb1a905fac8f1549f0083f71c51b"
   version = "v0.2.8"
+
+[[projects]]
+  digest = "1:bdd53b87de8185da386bae179c84d4848854c6870bacacf6a154fe63e2e750f7"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+    "scram",
+  ]
+  pruneopts = "UT"
+  revision = "bc6a3c0594130b1e34005880bc600b6d3f49fa7f"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:2fa7b0155cd54479a755c629de26f888a918e13f8857a2c442205d825368e084"
@@ -74,20 +97,9 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:ac83cf90d08b63ad5f7e020ef480d319ae890c208f8524622a2f3136e2686b02"
-  name = "github.com/stretchr/objx"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
-  version = "v0.1.1"
-
-[[projects]]
-  digest = "1:0bcc464dabcfad5393daf87c3f8142911d0f6c52569b837e91a1c15e890265f3"
+  digest = "1:972c2427413d41a1e06ca4897e8528e5a1622894050e2f527b38ddf0f343f759"
   name = "github.com/stretchr/testify"
-  packages = [
-    "assert",
-    "mock",
-  ]
+  packages = ["assert"]
   pruneopts = "UT"
   revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
   version = "v1.3.0"
@@ -168,32 +180,18 @@
   revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
   version = "v0.3.2"
 
-[[projects]]
-  branch = "v2"
-  digest = "1:988de7520a09024d5d94cd99bd545afbf194893994ec759b1cda0a0bbb6adb80"
-  name = "gopkg.in/mgo.v2"
-  packages = [
-    ".",
-    "bson",
-    "internal/json",
-    "internal/sasl",
-    "internal/scram",
-  ]
-  pruneopts = "UT"
-  revision = "9856a29383ce1c59f308dd1cf0363a79b5bef6b5"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/jmoiron/sqlx",
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
     "github.com/labstack/gommon/log",
+    "github.com/lib/pq",
     "github.com/satori/go.uuid",
     "github.com/stretchr/testify/assert",
-    "github.com/stretchr/testify/mock",
     "github.com/tealeg/xlsx",
-    "gopkg.in/mgo.v2",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

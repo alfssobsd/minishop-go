@@ -1,7 +1,7 @@
 package main
 
 import (
-	_mongoConfig "github.com/alfssobsd/minishop/config"
+	_config "github.com/alfssobsd/minishop/config"
 	_goodsController "github.com/alfssobsd/minishop/entrypoints/http"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -13,7 +13,8 @@ func main() {
 		StackSize: 1 << 10, // 1 KB
 	}))
 
-	mgoSession := _mongoConfig.MakeMongoConnection()
-	_goodsController.GoodsRoutes(e, mgoSession)
+	pgSession := _config.MakePostgresConnection()
+	_config.RunMigration(pgSession)
+	_goodsController.GoodsRoutes(e, pgSession)
 	e.Logger.Fatal(e.Start(":1323"))
 }

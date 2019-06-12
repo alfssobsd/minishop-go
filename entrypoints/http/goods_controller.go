@@ -1,21 +1,21 @@
 package http
 
 import (
-	"github.com/alfssobsd/minishop/dataproviders/mongodb"
+	"github.com/alfssobsd/minishop/dataproviders/postgres"
 	"github.com/alfssobsd/minishop/entrypoints/http/entities"
 	_goodsUC "github.com/alfssobsd/minishop/usecases"
 	_useCaseEntities "github.com/alfssobsd/minishop/usecases/entities"
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
-	"gopkg.in/mgo.v2"
 	"io"
 	"io/ioutil"
 	"net/http"
 )
 
-func GoodsRoutes(e *echo.Echo, mgoSession *mgo.Session) {
+func GoodsRoutes(e *echo.Echo, db *sqlx.DB) {
 	//create repos and usecases
-	goodsRepository := mongodb.NewGoodsRepository(mgoSession)
+	goodsRepository := postgres.NewGoodsRepository(db)
 	goodsUseCase := _goodsUC.NewGoodsUseCase(goodsRepository)
 
 	e.GET("/api/v1/goods", func(c echo.Context) error {

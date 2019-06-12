@@ -1,8 +1,8 @@
 package usecases
 
 import (
-	_mongoRepsitories "github.com/alfssobsd/minishop/dataproviders/mongodb"
-	_repoEntities "github.com/alfssobsd/minishop/dataproviders/mongodb/entities"
+	_repo "github.com/alfssobsd/minishop/dataproviders/postgres"
+	_repoEntities "github.com/alfssobsd/minishop/dataproviders/postgres/entities"
 	"github.com/alfssobsd/minishop/usecases/entities"
 	"github.com/labstack/gommon/log"
 	uuid "github.com/satori/go.uuid"
@@ -17,10 +17,10 @@ type GoodsUseCase interface {
 }
 
 type goodsUseCase struct {
-	goodsRepository _mongoRepsitories.GoodsRepository
+	goodsRepository _repo.GoodsRepository
 }
 
-func NewGoodsUseCase(goodsRepository _mongoRepsitories.GoodsRepository) *goodsUseCase {
+func NewGoodsUseCase(goodsRepository _repo.GoodsRepository) *goodsUseCase {
 	return &goodsUseCase{goodsRepository}
 }
 
