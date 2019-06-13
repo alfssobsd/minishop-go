@@ -38,6 +38,7 @@ func (r *goodsRepository) FindById(id string) *entities.GoodsEntity {
 	err := r.db.Get(&goodsItem, "SELECT * FROM goods WHERE uuid=$1", id)
 	if err != nil {
 		log.Error(err)
+		return nil
 	}
 	return &goodsItem
 }

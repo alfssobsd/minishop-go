@@ -11,7 +11,7 @@ import (
 
 type GoodsUseCase interface {
 	SearchGoodsUseCase() []entities.GoodsUseCaseEntity
-	ShowGoodsDetailInfoUseCase(id string) entities.GoodsUseCaseEntity
+	ShowGoodsDetailInfoUseCase(id string) *entities.GoodsUseCaseEntity
 	CreateGoodsUseCase(goodsEntity entities.GoodsUseCaseEntity) entities.GoodsUseCaseEntity
 	CreateFromExcelUseCase(pathToExcel string) []entities.GoodsUseCaseEntity
 }
@@ -43,11 +43,14 @@ func (u *goodsUseCase) SearchGoodsUseCase() []entities.GoodsUseCaseEntity {
 	return resultEntities
 }
 
-func (u *goodsUseCase) ShowGoodsDetailInfoUseCase(id string) entities.GoodsUseCaseEntity {
+func (u *goodsUseCase) ShowGoodsDetailInfoUseCase(id string) *entities.GoodsUseCaseEntity {
 	log.Info("ShowGoodsDetailInfoUseCase id = ", id)
 
 	goodsEntity := u.goodsRepository.FindById(id)
-	return entities.GoodsUseCaseEntity{
+	if goodsEntity == nil {
+		return nil
+	}
+	return &entities.GoodsUseCaseEntity{
 		GoodsId:         goodsEntity.GoodsID,
 		GoodsPrice:      goodsEntity.GoodsPrice,
 		GoodsDescrition: goodsEntity.GoodsDescrition,

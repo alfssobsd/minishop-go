@@ -3,7 +3,7 @@ package http
 import (
 	"github.com/alfssobsd/minishop/dataproviders/postgres"
 	"github.com/alfssobsd/minishop/entrypoints/http/entities"
-	_goodsUC "github.com/alfssobsd/minishop/usecases"
+	"github.com/alfssobsd/minishop/usecases"
 	_useCaseEntities "github.com/alfssobsd/minishop/usecases/entities"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo"
@@ -16,7 +16,7 @@ import (
 func GoodsRoutes(e *echo.Echo, db *sqlx.DB) {
 	//create repos and usecases
 	goodsRepository := postgres.NewGoodsRepository(db)
-	goodsUseCase := _goodsUC.NewGoodsUseCase(goodsRepository)
+	goodsUseCase := usecases.NewGoodsUseCase(goodsRepository)
 
 	e.GET("/api/v1/goods", func(c echo.Context) error {
 		return listGoodsController(c, goodsUseCase)
@@ -34,7 +34,7 @@ func GoodsRoutes(e *echo.Echo, db *sqlx.DB) {
 	})
 }
 
-func listGoodsController(c echo.Context, goodsUseCase _goodsUC.GoodsUseCase) error {
+func listGoodsController(c echo.Context, goodsUseCase usecases.GoodsUseCase) error {
 	log.Info("listGoodsController")
 
 	goodsList := goodsUseCase.SearchGoodsUseCase()
@@ -57,9 +57,12 @@ func listGoodsController(c echo.Context, goodsUseCase _goodsUC.GoodsUseCase) err
 	})
 }
 
-func showGoodsDetailInfoController(c echo.Context, goodsUseCase _goodsUC.GoodsUseCase) error {
+func showGoodsDetailInfoController(c echo.Context, goodsUseCase usecases.GoodsUseCase) error {
 	id := c.Param("id")
 	item := goodsUseCase.ShowGoodsDetailInfoUseCase(id)
+	if item == nil {
+		return echo.NotFoundHandler(c)
+	}
 	return c.JSON(http.StatusOK, entities.HttpGoodsResponseEntity{
 		GoodsId:          item.GoodsId,
 		GoodsCodeName:    item.GoodsCodeName,
@@ -69,7 +72,7 @@ func showGoodsDetailInfoController(c echo.Context, goodsUseCase _goodsUC.GoodsUs
 	})
 }
 
-func createGoodsController(c echo.Context, goodsUseCase _goodsUC.GoodsUseCase) error {
+func createGoodsController(c echo.Context, goodsUseCase usecases.GoodsUseCase) error {
 
 	r := new(entities.HttpGoodsRequestEntity)
 	_ = c.Bind(r)
@@ -91,7 +94,7 @@ func createGoodsController(c echo.Context, goodsUseCase _goodsUC.GoodsUseCase) e
 	})
 }
 
-func createGoodsFromExcelController(c echo.Context, goodsUseCase _goodsUC.GoodsUseCase) error {
+func createGoodsFromExcelController(c echo.Context, goodsUseCase usecases.GoodsUseCase) error {
 	log.Info("createGoodsFromExcelController ")
 
 	//prepare temp file for parsing

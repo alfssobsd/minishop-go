@@ -1,7 +1,8 @@
 package entities
 
 type HttpShoppingCartEntity struct {
-	ShoppingCartId string   `json:"shopping_cart_id"`
-	TotalGoods     int      `json:"total_goods"`
-	GoodsIds       []string `json:"goods_ids"`
+	Customer   string                    `json:"customer"`
+	TotalGoods int                       `json:"total_goods"`
+	TotalPrice float64                   `json:"total_price"`
+	GoodsItems []HttpGoodsResponseEntity `json:"goods_items"`
 }

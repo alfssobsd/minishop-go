@@ -30,7 +30,26 @@ create table IF NOT EXISTS goods
 );
 
 create unique index IF NOT EXISTS goods_uuid_uindex
-    on goods (uuid);`
+    on goods (uuid);
+
+create table IF NOT EXISTS order_goods
+(
+	goods_uuid uuid not null,
+	goods_amount int default 1 not null,
+	order_uuid uuid not null
+);
+create unique index IF NOT EXISTS order_goods_goods_uuid_order_uuid_uindex
+	on order_goods (goods_uuid, order_uuid);
+
+create table IF NOT EXISTS orders
+(
+    uuid uuid not null UNIQUE,
+    customer varchar not null,
+    status integer not null,
+	PRIMARY KEY (uuid)
+);
+
+`
 
 	db.MustExec(schema)
 }

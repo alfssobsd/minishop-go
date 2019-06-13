@@ -1,6 +1,7 @@
 package entities
 
 type ShoppingCartUseCaseEntity struct {
-	ShoppingCartId string
-	GoodsIds       []string
+	Customer   string
+	TotalPrice float64
+	GoodsItems []GoodsUseCaseEntity
 }
