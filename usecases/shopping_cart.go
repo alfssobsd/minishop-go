@@ -1,15 +1,16 @@
 package usecases
 
 import (
+	"errors"
 	_repo "github.com/alfssobsd/minishop/dataproviders/postgres"
 	"github.com/alfssobsd/minishop/usecases/entities"
 	uuid "github.com/satori/go.uuid"
 )
 
 type ShoppingCartUseCase interface {
-	AddGoodsToCartUseCase(customer string, goodsId string) *entities.ShoppingCartUseCaseEntity
-	RemoveGoodsFormCartUseCase(customer string) *entities.ShoppingCartUseCaseEntity
-	ShowCartUseCase(customer string) *entities.ShoppingCartUseCaseEntity
+	AddGoodsToCartUseCase(customer string, goodsId string) error
+	RemoveGoodsFormCartUseCase(customer string, goodsId string) error
+	ShowCartUseCase(customer string) (*entities.ShoppingCartUseCaseEntity, error)
 }
 
 type shoppingCartUseCase struct {
@@ -21,9 +22,9 @@ func NewShoppingCartUseCase(goodsRepository _repo.GoodsRepository, orderReposito
 	return &shoppingCartUseCase{goodsRepository, orderRepository}
 }
 
-func (u *shoppingCartUseCase) AddGoodsToCartUseCase(customer string, goodsId string) *entities.ShoppingCartUseCaseEntity {
+func (u *shoppingCartUseCase) AddGoodsToCartUseCase(customer string, goodsId string) error {
 	if u.goodsRepo.FindById(goodsId) == nil {
-		return nil
+		return errors.New("Incorrect goodsId = " + goodsId)
 	}
 
 	order := u.orderRepo.GetFirstActiveOrder(customer)
@@ -33,39 +34,42 @@ func (u *shoppingCartUseCase) AddGoodsToCartUseCase(customer string, goodsId str
 		order = u.orderRepo.GetFirstActiveOrder(customer)
 	}
 
-	u.orderRepo.AddGoods(order.OrderID, goodsId)
-	order = u.orderRepo.GetFirstActiveOrder(customer)
-
-	totalPrice := float64(0)
-	goodsItems := []entities.ShoppingCartGoodsItemUseCaseEntity{}
+	isNotAddedGoods := true
 	for _, element := range order.OrderItems {
-		goodsItems = append(goodsItems, entities.ShoppingCartGoodsItemUseCaseEntity{
-			Goods: entities.GoodsUseCaseEntity{
-				GoodsId:         element.GoodsItem.GoodsID,
-				GoodsCodeName:   element.GoodsItem.GoodsCodeName,
-				GoodsDescrition: element.GoodsItem.GoodsDescrition,
-				GoodsTitle:      element.GoodsItem.GoodsTitle,
-				GoodsPrice:      element.GoodsItem.GoodsPrice,
-			},
-			Amount: element.GoodsAmount,
-		})
-		for i := 0; i < element.GoodsAmount; i++ {
-			totalPrice += element.GoodsItem.GoodsPrice
+		if element.GoodsItem.GoodsID == goodsId {
+			u.orderRepo.PlusAmount(order.OrderID, goodsId, 1)
+			isNotAddedGoods = false
+			break
 		}
 	}
 
-	return &entities.ShoppingCartUseCaseEntity{Customer: customer, TotalPrice: totalPrice, GoodsItems: goodsItems}
-}
+	if isNotAddedGoods {
+		u.orderRepo.AddGoods(order.OrderID, goodsId)
+	}
+	order = u.orderRepo.GetFirstActiveOrder(customer)
 
-func (u *shoppingCartUseCase) RemoveGoodsFormCartUseCase(customer string) *entities.ShoppingCartUseCaseEntity {
-	//TODO: need implement
 	return nil
 }
 
-func (u *shoppingCartUseCase) ShowCartUseCase(customer string) *entities.ShoppingCartUseCaseEntity {
+func (u *shoppingCartUseCase) RemoveGoodsFormCartUseCase(customer string, goodsId string) error {
 	order := u.orderRepo.GetFirstActiveOrder(customer)
 	if order == nil {
-		return &entities.ShoppingCartUseCaseEntity{Customer: customer, TotalPrice: float64(0), GoodsItems: []entities.ShoppingCartGoodsItemUseCaseEntity{}}
+		return nil
+	}
+
+	for _, element := range order.OrderItems {
+		if element.GoodsItem.GoodsID == goodsId {
+			u.orderRepo.RemoveGoods(order.OrderID, goodsId)
+			break
+		}
+	}
+	return nil
+}
+
+func (u *shoppingCartUseCase) ShowCartUseCase(customer string) (*entities.ShoppingCartUseCaseEntity, error) {
+	order := u.orderRepo.GetFirstActiveOrder(customer)
+	if order == nil {
+		return &entities.ShoppingCartUseCaseEntity{Customer: customer, TotalPrice: float64(0), GoodsItems: []entities.ShoppingCartGoodsItemUseCaseEntity{}}, nil
 	}
 
 	totalPrice := float64(0)
@@ -86,5 +90,5 @@ func (u *shoppingCartUseCase) ShowCartUseCase(customer string) *entities.Shoppin
 		}
 	}
 
-	return &entities.ShoppingCartUseCaseEntity{Customer: customer, TotalPrice: totalPrice, GoodsItems: goodsItems}
+	return &entities.ShoppingCartUseCaseEntity{Customer: customer, TotalPrice: totalPrice, GoodsItems: goodsItems}, nil
 }

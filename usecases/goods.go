@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"errors"
 	_repo "github.com/alfssobsd/minishop/dataproviders/postgres"
 	_repoEntities "github.com/alfssobsd/minishop/dataproviders/postgres/entities"
 	"github.com/alfssobsd/minishop/usecases/entities"
@@ -11,7 +12,7 @@ import (
 
 type GoodsUseCase interface {
 	SearchGoodsUseCase() []entities.GoodsUseCaseEntity
-	ShowGoodsDetailInfoUseCase(id string) *entities.GoodsUseCaseEntity
+	ShowGoodsDetailInfoUseCase(id string) (*entities.GoodsUseCaseEntity, error)
 	CreateGoodsUseCase(goodsEntity entities.GoodsUseCaseEntity) entities.GoodsUseCaseEntity
 	CreateFromExcelUseCase(pathToExcel string) []entities.GoodsUseCaseEntity
 }
@@ -43,12 +44,12 @@ func (u *goodsUseCase) SearchGoodsUseCase() []entities.GoodsUseCaseEntity {
 	return resultEntities
 }
 
-func (u *goodsUseCase) ShowGoodsDetailInfoUseCase(id string) *entities.GoodsUseCaseEntity {
+func (u *goodsUseCase) ShowGoodsDetailInfoUseCase(id string) (*entities.GoodsUseCaseEntity, error) {
 	log.Info("ShowGoodsDetailInfoUseCase id = ", id)
 
 	goodsEntity := u.goodsRepository.FindById(id)
 	if goodsEntity == nil {
-		return nil
+		return nil, errors.New("Not found goods = " + id)
 	}
 	return &entities.GoodsUseCaseEntity{
 		GoodsId:         goodsEntity.GoodsID,
@@ -56,7 +57,7 @@ func (u *goodsUseCase) ShowGoodsDetailInfoUseCase(id string) *entities.GoodsUseC
 		GoodsDescrition: goodsEntity.GoodsDescrition,
 		GoodsTitle:      goodsEntity.GoodsTitle,
 		GoodsCodeName:   goodsEntity.GoodsCodeName,
-	}
+	}, nil
 }
 
 func (u *goodsUseCase) CreateGoodsUseCase(goodsEntity entities.GoodsUseCaseEntity) entities.GoodsUseCaseEntity {

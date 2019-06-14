@@ -4,11 +4,14 @@ import (
 	"github.com/alfssobsd/minishop/dataproviders/postgres/entities"
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/gommon/log"
+	"strconv"
 )
 
 type OrderRepository interface {
 	CreateOrder(customer string, uuid string)
 	GetFirstActiveOrder(customer string) *entities.OrderEntity
+	PlusAmount(orderId string, goodsId string, amount int)
+	MinusAmount(orderId string, goodsId string, amount int)
 	AddGoods(orderId string, goodsId string)
 	RemoveGoods(orderId string, goodsId string)
 }
@@ -32,7 +35,7 @@ func (r *orderRepository) GetFirstActiveOrder(customer string) *entities.OrderEn
 	order := entities.OrderEntity{}
 	order.OrderItems = []entities.OrderItemEntity{}
 
-	err := r.db.Get(&order, "SELECT * FROM orders WHERE status=$1", entities.OrderStatusActive)
+	err := r.db.Get(&order, "SELECT * FROM orders WHERE status=$1 and customer=$2", entities.OrderStatusActive, customer)
 	if err != nil {
 		log.Error(err)
 		return nil
@@ -60,6 +63,16 @@ func (r *orderRepository) GetFirstActiveOrder(customer string) *entities.OrderEn
 		}
 	}
 	return &order
+}
+
+func (r *orderRepository) PlusAmount(orderId string, goodsId string, amount int) {
+	log.Info("PlusAmount  goods = ", goodsId, " to order = ", orderId, " amount = ", strconv.Itoa(amount))
+	_ = r.db.MustExec("UPDATE order_goods SET goods_amount = goods_amount + $1  WHERE goods_uuid = $2 AND order_uuid = $3", amount, goodsId, orderId)
+}
+
+func (r *orderRepository) MinusAmount(orderId string, goodsId string, amount int) {
+	log.Info("PlusAmount  goods = ", goodsId, " to order = ", orderId, " amount = ", strconv.Itoa(amount))
+	_ = r.db.MustExec("UPDATE order_goods SET goods_amount = goods_amount - $1  WHERE goods_uuid = $2 AND order_uuid = $3", amount, goodsId, orderId)
 }
 
 func (r *orderRepository) AddGoods(orderId string, goodsId string) {

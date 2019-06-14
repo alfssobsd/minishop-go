@@ -18,11 +18,62 @@ func CartRoutes(e *echo.Echo, db *sqlx.DB) {
 	e.GET("/api/v1/cart/:customer", func(c echo.Context) error {
 		return showCustomerCart(c, cartUseCase)
 	})
+	e.POST("/api/v1/cart/:customer/add", func(c echo.Context) error {
+		return addGoodsToCustomerCart(c, cartUseCase)
+	})
+
+	e.POST("/api/v1/cart/:customer/remove", func(c echo.Context) error {
+		return removeGoodsToCustomerCart(c, cartUseCase)
+	})
+}
+
+func removeGoodsToCustomerCart(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
+	customer := c.Param("customer")
+	httpRequest := &entities.HttpShoppingCartAddGoodsRequestEntity{}
+	if err := c.Bind(httpRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, entities.HttpActionResponseEntity{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+	if err := cartUseCase.RemoveGoodsFormCartUseCase(customer, httpRequest.GoodsId); err != nil {
+		return c.JSON(http.StatusBadRequest, entities.HttpActionResponseEntity{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, entities.HttpActionResponseEntity{
+		Code:    http.StatusOK,
+		Message: "DONE",
+	})
+}
+
+func addGoodsToCustomerCart(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
+	customer := c.Param("customer")
+	httpRequest := &entities.HttpShoppingCartAddGoodsRequestEntity{}
+	if err := c.Bind(httpRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, entities.HttpActionResponseEntity{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+	if err := cartUseCase.AddGoodsToCartUseCase(customer, httpRequest.GoodsId); err != nil {
+		return c.JSON(http.StatusBadRequest, entities.HttpActionResponseEntity{
+			Code:    http.StatusBadRequest,
+			Message: err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, entities.HttpActionResponseEntity{
+		Code:    http.StatusOK,
+		Message: "DONE",
+	})
 }
 
 func showCustomerCart(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
 	customer := c.Param("customer")
-	cart := cartUseCase.ShowCartUseCase(customer)
+	cart, _ := cartUseCase.ShowCartUseCase(customer)
 
 	items := []entities.HttpShoppingCartItemsResponseEntity{}
 	totalGoods := 0

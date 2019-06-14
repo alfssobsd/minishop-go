@@ -59,9 +59,12 @@ func listGoodsController(c echo.Context, goodsUseCase usecases.GoodsUseCase) err
 
 func showGoodsDetailInfoController(c echo.Context, goodsUseCase usecases.GoodsUseCase) error {
 	id := c.Param("id")
-	item := goodsUseCase.ShowGoodsDetailInfoUseCase(id)
-	if item == nil {
-		return echo.NotFoundHandler(c)
+	item, err := goodsUseCase.ShowGoodsDetailInfoUseCase(id)
+	if err != nil {
+		return c.JSON(http.StatusNotFound, entities.HttpActionResponseEntity{
+			Code:    http.StatusNotFound,
+			Message: err.Error(),
+		})
 	}
 	return c.JSON(http.StatusOK, entities.HttpGoodsResponseEntity{
 		GoodsId:          item.GoodsId,

@@ -11,3 +11,11 @@ type HttpShoppingCartItemsResponseEntity struct {
 	Amount int                     `json:"amount"`
 	Goods  HttpGoodsResponseEntity `json:"goods"`
 }
+
+type HttpShoppingCartAddGoodsRequestEntity struct {
+	GoodsId string `json:"goods_id"`
+}
+
+type HttpShoppingCartRemoveGoodsRequestEntity struct {
+	HttpShoppingCartAddGoodsRequestEntity
+}
