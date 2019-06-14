@@ -24,23 +24,26 @@ func showCustomerCart(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) 
 	customer := c.Param("customer")
 	cart := cartUseCase.ShowCartUseCase(customer)
 
-	httpGoodsItems := []entities.HttpGoodsResponseEntity{}
+	items := []entities.HttpShoppingCartItemsResponseEntity{}
+	totalGoods := 0
 	for _, element := range cart.GoodsItems {
-		httpGoodsItems = append(httpGoodsItems, entities.HttpGoodsResponseEntity{
-			GoodsId:          element.GoodsId,
-			GoodsCodeName:    element.GoodsCodeName,
-			GoodsTitle:       element.GoodsTitle,
-			GoodsDescription: element.GoodsDescrition,
-			GoodsPrice:       element.GoodsPrice,
+		items = append(items, entities.HttpShoppingCartItemsResponseEntity{
+			Goods: entities.HttpGoodsResponseEntity{
+				GoodsId:          element.Goods.GoodsId,
+				GoodsCodeName:    element.Goods.GoodsCodeName,
+				GoodsTitle:       element.Goods.GoodsTitle,
+				GoodsDescription: element.Goods.GoodsDescrition,
+				GoodsPrice:       element.Goods.GoodsPrice,
+			},
+			Amount: element.Amount,
 		})
+		totalGoods += element.Amount
 	}
 
-	return c.JSON(http.StatusOK, entities.HttpShoppingCartEntity{
-		Customer: customer,
-		//TODO: incorrect value, need to consider amount
-		TotalGoods: len(cart.GoodsItems),
+	return c.JSON(http.StatusOK, entities.HttpShoppingCartResponseEntity{
+		Customer:   customer,
+		TotalGoods: totalGoods,
 		TotalPrice: cart.TotalPrice,
-		//TODO: incorrect value, need show amount
-		GoodsItems: httpGoodsItems,
+		Items:      items,
 	})
 }

@@ -37,14 +37,17 @@ func (u *shoppingCartUseCase) AddGoodsToCartUseCase(customer string, goodsId str
 	order = u.orderRepo.GetFirstActiveOrder(customer)
 
 	totalPrice := float64(0)
-	goodsItems := []entities.GoodsUseCaseEntity{}
+	goodsItems := []entities.ShoppingCartGoodsItemUseCaseEntity{}
 	for _, element := range order.OrderItems {
-		goodsItems = append(goodsItems, entities.GoodsUseCaseEntity{
-			GoodsId:         element.GoodsItem.GoodsID,
-			GoodsCodeName:   element.GoodsItem.GoodsCodeName,
-			GoodsDescrition: element.GoodsItem.GoodsDescrition,
-			GoodsTitle:      element.GoodsItem.GoodsTitle,
-			GoodsPrice:      element.GoodsItem.GoodsPrice,
+		goodsItems = append(goodsItems, entities.ShoppingCartGoodsItemUseCaseEntity{
+			Goods: entities.GoodsUseCaseEntity{
+				GoodsId:         element.GoodsItem.GoodsID,
+				GoodsCodeName:   element.GoodsItem.GoodsCodeName,
+				GoodsDescrition: element.GoodsItem.GoodsDescrition,
+				GoodsTitle:      element.GoodsItem.GoodsTitle,
+				GoodsPrice:      element.GoodsItem.GoodsPrice,
+			},
+			Amount: element.GoodsAmount,
 		})
 		for i := 0; i < element.GoodsAmount; i++ {
 			totalPrice += element.GoodsItem.GoodsPrice
@@ -62,18 +65,21 @@ func (u *shoppingCartUseCase) RemoveGoodsFormCartUseCase(customer string) *entit
 func (u *shoppingCartUseCase) ShowCartUseCase(customer string) *entities.ShoppingCartUseCaseEntity {
 	order := u.orderRepo.GetFirstActiveOrder(customer)
 	if order == nil {
-		return &entities.ShoppingCartUseCaseEntity{Customer: customer, TotalPrice: float64(0), GoodsItems: []entities.GoodsUseCaseEntity{}}
+		return &entities.ShoppingCartUseCaseEntity{Customer: customer, TotalPrice: float64(0), GoodsItems: []entities.ShoppingCartGoodsItemUseCaseEntity{}}
 	}
 
 	totalPrice := float64(0)
-	goodsItems := []entities.GoodsUseCaseEntity{}
+	goodsItems := []entities.ShoppingCartGoodsItemUseCaseEntity{}
 	for _, element := range order.OrderItems {
-		goodsItems = append(goodsItems, entities.GoodsUseCaseEntity{
-			GoodsId:         element.GoodsItem.GoodsID,
-			GoodsCodeName:   element.GoodsItem.GoodsCodeName,
-			GoodsDescrition: element.GoodsItem.GoodsDescrition,
-			GoodsTitle:      element.GoodsItem.GoodsTitle,
-			GoodsPrice:      element.GoodsItem.GoodsPrice,
+		goodsItems = append(goodsItems, entities.ShoppingCartGoodsItemUseCaseEntity{
+			Goods: entities.GoodsUseCaseEntity{
+				GoodsId:         element.GoodsItem.GoodsID,
+				GoodsCodeName:   element.GoodsItem.GoodsCodeName,
+				GoodsDescrition: element.GoodsItem.GoodsDescrition,
+				GoodsTitle:      element.GoodsItem.GoodsTitle,
+				GoodsPrice:      element.GoodsItem.GoodsPrice,
+			},
+			Amount: element.GoodsAmount,
 		})
 		for i := 0; i < element.GoodsAmount; i++ {
 			totalPrice += element.GoodsItem.GoodsPrice
