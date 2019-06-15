@@ -7,12 +7,18 @@ import (
 )
 
 func TestOrderRepository_CreateOrder(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	db := config.MakePostgresConnection()
 	orderRepository := NewOrderRepository(db)
 	orderRepository.CreateOrder("sergei", "2d98c5f9-2a4c-4286-921a-1c2a7c92a452")
 }
 
 func TestOrderRepository_GetFirstActiveOrder(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	db := config.MakePostgresConnection()
 	orderRepository := NewOrderRepository(db)
 	order := orderRepository.GetFirstActiveOrder("sergei")
@@ -20,6 +26,9 @@ func TestOrderRepository_GetFirstActiveOrder(t *testing.T) {
 }
 
 func TestOrderRepository_AddGoods(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	db := config.MakePostgresConnection()
 	orderRepository := NewOrderRepository(db)
 	order := orderRepository.GetFirstActiveOrder("sergei")
@@ -29,6 +38,9 @@ func TestOrderRepository_AddGoods(t *testing.T) {
 }
 
 func TestOrderRepository_RemoveGoods(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	db := config.MakePostgresConnection()
 	orderRepository := NewOrderRepository(db)
 	order := orderRepository.GetFirstActiveOrder("sergei")
