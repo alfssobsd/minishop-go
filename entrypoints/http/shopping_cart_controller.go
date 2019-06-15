@@ -9,6 +9,7 @@ import (
 	"net/http"
 )
 
+//Create Routes for Cart
 func CartRoutes(e *echo.Echo, db *sqlx.DB) {
 	//create repos and usecases
 	goodsRepo := postgres.NewGoodsRepository(db)
@@ -16,18 +17,19 @@ func CartRoutes(e *echo.Echo, db *sqlx.DB) {
 	cartUseCase := usecases.NewShoppingCartUseCase(goodsRepo, orderRepo)
 
 	e.GET("/api/v1/cart/:customer", func(c echo.Context) error {
-		return showCustomerCart(c, cartUseCase)
+		return showCustomerCartController(c, cartUseCase)
 	})
 	e.POST("/api/v1/cart/:customer/add", func(c echo.Context) error {
-		return addGoodsToCustomerCart(c, cartUseCase)
+		return addGoodsToCustomerCartController(c, cartUseCase)
 	})
 
 	e.POST("/api/v1/cart/:customer/remove", func(c echo.Context) error {
-		return removeGoodsToCustomerCart(c, cartUseCase)
+		return removeGoodsFromCustomerCartController(c, cartUseCase)
 	})
 }
 
-func removeGoodsToCustomerCart(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
+//Remove Goods from shopping cart
+func removeGoodsFromCustomerCartController(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
 	customer := c.Param("customer")
 	httpRequest := &entities.HttpShoppingCartAddGoodsRequestEntity{}
 	if err := c.Bind(httpRequest); err != nil {
@@ -49,7 +51,8 @@ func removeGoodsToCustomerCart(c echo.Context, cartUseCase usecases.ShoppingCart
 	})
 }
 
-func addGoodsToCustomerCart(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
+//add Goods to shopping cart
+func addGoodsToCustomerCartController(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
 	customer := c.Param("customer")
 	httpRequest := &entities.HttpShoppingCartAddGoodsRequestEntity{}
 	if err := c.Bind(httpRequest); err != nil {
@@ -71,7 +74,8 @@ func addGoodsToCustomerCart(c echo.Context, cartUseCase usecases.ShoppingCartUse
 	})
 }
 
-func showCustomerCart(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
+//show customer cart
+func showCustomerCartController(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
 	customer := c.Param("customer")
 	cart, _ := cartUseCase.ShowCartUseCase(customer)
 
