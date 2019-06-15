@@ -27,8 +27,9 @@ func TestCorrectReturnFormatShowGoodsDetailInfoUseCase(t *testing.T) {
 
 	goodsUC := NewGoodsUseCase(&MockRepo{})
 
+	goods, _ := goodsUC.ShowGoodsDetailInfoUseCase("c26e7e02-c1de-465d-88ff-b845abdc47f1")
 	// call the code we are testing
-	assert.Equal(t, goodsUC.ShowGoodsDetailInfoUseCase("c26e7e02-c1de-465d-88ff-b845abdc47f1"), entities.GoodsUseCaseEntity{
+	assert.Equal(t, goods, entities.GoodsUseCaseEntity{
 		GoodsId:         "c26e7e02-c1de-465d-88ff-b845abdc47f1",
 		GoodsCodeName:   "0001",
 		GoodsTitle:      "Плющевый медведь",
