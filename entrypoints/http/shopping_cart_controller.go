@@ -14,7 +14,8 @@ func CartRoutes(e *echo.Echo, db *sqlx.DB) {
 	//create repos and usecases
 	goodsRepo := postgres.NewGoodsRepository(db)
 	orderRepo := postgres.NewOrderRepository(db)
-	cartUseCase := usecases.NewShoppingCartUseCase(goodsRepo, orderRepo)
+	custRepo := postgres.NewCustomerRepository(db)
+	cartUseCase := usecases.NewShoppingCartUseCase(goodsRepo, orderRepo, custRepo)
 
 	e.GET("/api/v1/cart/:customer", func(c echo.Context) error {
 		return showCustomerCartController(c, cartUseCase)
@@ -96,7 +97,7 @@ func showCustomerCartController(c echo.Context, cartUseCase usecases.ShoppingCar
 	}
 
 	return c.JSON(http.StatusOK, entities.HttpShoppingCartResponseEntity{
-		Customer:   customer,
+		CustomerId: cart.CustomerId,
 		TotalGoods: totalGoods,
 		TotalPrice: cart.TotalPrice,
 		Items:      items,

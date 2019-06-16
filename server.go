@@ -17,6 +17,7 @@ func main() {
 	_config.RunMigration(pgSession)
 	_controllers.GoodsRoutes(e, pgSession)
 	_controllers.CartRoutes(e, pgSession)
+	_controllers.CustomerRoutes(e, pgSession)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

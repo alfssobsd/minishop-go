@@ -1,7 +1,9 @@
 package entities
 
+import uuid "github.com/satori/go.uuid"
+
 type ShoppingCartUseCaseEntity struct {
-	Customer   string
+	CustomerId uuid.UUID
 	TotalPrice float64
 	GoodsItems []ShoppingCartGoodsItemUseCaseEntity
 }

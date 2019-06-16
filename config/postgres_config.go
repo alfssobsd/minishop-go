@@ -44,11 +44,23 @@ create unique index IF NOT EXISTS order_goods_goods_uuid_order_uuid_uindex
 create table IF NOT EXISTS orders
 (
     uuid uuid not null UNIQUE,
-    customer varchar not null,
+    customer_uuid varchar not null,
     status integer not null,
 	PRIMARY KEY (uuid)
 );
+create table IF NOT EXISTS customers
+(
+	uuid uuid not null,
+	username varchar not null,
+	full_name varchar not null,
+	PRIMARY KEY (uuid)
+);
 
+create unique index IF NOT EXISTS customers_username_uindex
+	on customers (username);
+
+create unique index IF NOT EXISTS customers_uuid_uindex
+	on customers (uuid);
 `
 
 	db.MustExec(schema)

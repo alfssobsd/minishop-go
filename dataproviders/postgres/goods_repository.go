@@ -5,12 +5,13 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/gommon/log"
 	_ "github.com/lib/pq"
+	uuid "github.com/satori/go.uuid"
 )
 
 type GoodsRepository interface {
 	FindAll() []*entities.GoodsEntity
 	CreateOne(entities.GoodsEntity)
-	FindById(id string) *entities.GoodsEntity
+	FindById(goodsId uuid.UUID) *entities.GoodsEntity
 	FindByCodeName(codeName string) *entities.GoodsEntity
 }
 
@@ -31,11 +32,11 @@ func (r *goodsRepository) CreateOne(goodsEntity entities.GoodsEntity) {
 	log.Info(result)
 }
 
-func (r *goodsRepository) FindById(id string) *entities.GoodsEntity {
-	log.Info("FindById ", id)
+func (r *goodsRepository) FindById(goodsId uuid.UUID) *entities.GoodsEntity {
+	log.Info("FindById ", goodsId)
 
 	goodsItem := entities.GoodsEntity{}
-	err := r.db.Get(&goodsItem, "SELECT * FROM goods WHERE uuid=$1", id)
+	err := r.db.Get(&goodsItem, "SELECT * FROM goods WHERE uuid=$1", goodsId)
 	if err != nil {
 		log.Error(err)
 		return nil

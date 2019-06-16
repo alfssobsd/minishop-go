@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
+	uuid "github.com/satori/go.uuid"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -59,7 +60,7 @@ func listGoodsController(c echo.Context, goodsUseCase usecases.GoodsUseCase) err
 
 func showGoodsDetailInfoController(c echo.Context, goodsUseCase usecases.GoodsUseCase) error {
 	id := c.Param("id")
-	item, err := goodsUseCase.ShowGoodsDetailInfoUseCase(id)
+	item, err := goodsUseCase.ShowGoodsDetailInfoUseCase(uuid.FromStringOrNil(id))
 	if err != nil {
 		return c.JSON(http.StatusNotFound, entities.HttpActionResponseEntity{
 			Code:    http.StatusNotFound,

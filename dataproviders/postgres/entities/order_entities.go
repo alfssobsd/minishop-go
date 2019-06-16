@@ -1,5 +1,7 @@
 package entities
 
+import uuid "github.com/satori/go.uuid"
+
 type OrderStatus int
 
 const (
@@ -8,10 +10,10 @@ const (
 )
 
 type OrderEntity struct {
-	OrderID       string      `db:"uuid"`
-	OrderCustomer string      `db:"customer"`
-	OrderStatus   OrderStatus `db:"status"`
-	OrderItems    []OrderItemEntity
+	OrderID         uuid.UUID   `db:"uuid"`
+	OrderCustomerId uuid.UUID   `db:"customer_uuid"`
+	OrderStatus     OrderStatus `db:"status"`
+	OrderItems      []OrderItemEntity
 }
 
 type OrderItemEntity struct {
@@ -20,7 +22,7 @@ type OrderItemEntity struct {
 }
 
 type OrderGoodsEntity struct {
-	OrderID     string `db:"order_uuid"`
-	GoodsId     string `db:"goods_uuid"`
-	GoodsAmount int    `db:"goods_amount"`
+	OrderID     uuid.UUID `db:"order_uuid"`
+	GoodsId     uuid.UUID `db:"goods_uuid"`
+	GoodsAmount int       `db:"goods_amount"`
 }

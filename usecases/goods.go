@@ -12,7 +12,7 @@ import (
 
 type GoodsUseCase interface {
 	SearchGoodsUseCase() []entities.GoodsUseCaseEntity
-	ShowGoodsDetailInfoUseCase(id string) (*entities.GoodsUseCaseEntity, error)
+	ShowGoodsDetailInfoUseCase(goodsId uuid.UUID) (*entities.GoodsUseCaseEntity, error)
 	CreateGoodsUseCase(goodsEntity entities.GoodsUseCaseEntity) entities.GoodsUseCaseEntity
 	CreateFromExcelUseCase(pathToExcel string) []entities.GoodsUseCaseEntity
 }
@@ -44,12 +44,12 @@ func (u *goodsUseCase) SearchGoodsUseCase() []entities.GoodsUseCaseEntity {
 	return resultEntities
 }
 
-func (u *goodsUseCase) ShowGoodsDetailInfoUseCase(id string) (*entities.GoodsUseCaseEntity, error) {
-	log.Info("ShowGoodsDetailInfoUseCase id = ", id)
+func (u *goodsUseCase) ShowGoodsDetailInfoUseCase(goodsId uuid.UUID) (*entities.GoodsUseCaseEntity, error) {
+	log.Info("ShowGoodsDetailInfoUseCase id = ", goodsId.String())
 
-	goodsEntity := u.goodsRepository.FindById(id)
+	goodsEntity := u.goodsRepository.FindById(goodsId)
 	if goodsEntity == nil {
-		return nil, errors.New("Not found goods = " + id)
+		return nil, errors.New("Not found goods = " + goodsId.String())
 	}
 	return &entities.GoodsUseCaseEntity{
 		GoodsId:         goodsEntity.GoodsID,
@@ -61,17 +61,17 @@ func (u *goodsUseCase) ShowGoodsDetailInfoUseCase(id string) (*entities.GoodsUse
 }
 
 func (u *goodsUseCase) CreateGoodsUseCase(goodsEntity entities.GoodsUseCaseEntity) entities.GoodsUseCaseEntity {
-	id := uuid.NewV4().String()
-	log.Info("CreateGoodsUseCase id = ", id)
+	goodsId := uuid.NewV4()
+	log.Info("CreateGoodsUseCase id = ", goodsId.String())
 	u.goodsRepository.CreateOne(_repoEntities.GoodsEntity{
-		GoodsID:         id,
+		GoodsID:         goodsId,
 		GoodsDescrition: goodsEntity.GoodsDescrition,
 		GoodsCodeName:   goodsEntity.GoodsCodeName,
 		GoodsPrice:      goodsEntity.GoodsPrice,
 		GoodsTitle:      goodsEntity.GoodsTitle,
 	})
 
-	goodsResultEntity := u.goodsRepository.FindById(id)
+	goodsResultEntity := u.goodsRepository.FindById(goodsId)
 	return entities.GoodsUseCaseEntity{
 		GoodsId:         goodsResultEntity.GoodsID,
 		GoodsPrice:      goodsResultEntity.GoodsPrice,

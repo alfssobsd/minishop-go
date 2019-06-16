@@ -4,8 +4,8 @@ import (
 	"github.com/alfssobsd/minishop/dataproviders/postgres"
 	_repoEntities "github.com/alfssobsd/minishop/dataproviders/postgres/entities"
 	"github.com/alfssobsd/minishop/usecases/entities"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
-	//"github.com/stretchr/testify/mock"
 	"testing"
 )
 
@@ -13,9 +13,9 @@ type MockRepo struct {
 	postgres.GoodsRepository
 }
 
-func (m MockRepo) FindById(id string) *_repoEntities.GoodsEntity {
+func (m MockRepo) FindById(goodsId uuid.UUID) *_repoEntities.GoodsEntity {
 	return &_repoEntities.GoodsEntity{
-		GoodsID:         "c26e7e02-c1de-465d-88ff-b845abdc47f1",
+		GoodsID:         uuid.FromStringOrNil("c26e7e02-c1de-465d-88ff-b845abdc47f1"),
 		GoodsCodeName:   "0001",
 		GoodsTitle:      "Плющевый медведь",
 		GoodsDescrition: "Милый плющевый медведь",
@@ -27,10 +27,10 @@ func TestGoodsUseCase_ShowGoodsDetailInfoUseCase(t *testing.T) {
 
 	goodsUC := NewGoodsUseCase(&MockRepo{})
 
-	goods, _ := goodsUC.ShowGoodsDetailInfoUseCase("c26e7e02-c1de-465d-88ff-b845abdc47f1")
+	goods, _ := goodsUC.ShowGoodsDetailInfoUseCase(uuid.FromStringOrNil("c26e7e02-c1de-465d-88ff-b845abdc47f1"))
 	// call the code we are testing
 	assert.Equal(t, goods, &entities.GoodsUseCaseEntity{
-		GoodsId:         "c26e7e02-c1de-465d-88ff-b845abdc47f1",
+		GoodsId:         uuid.FromStringOrNil("c26e7e02-c1de-465d-88ff-b845abdc47f1"),
 		GoodsCodeName:   "0001",
 		GoodsTitle:      "Плющевый медведь",
 		GoodsDescrition: "Милый плющевый медведь",

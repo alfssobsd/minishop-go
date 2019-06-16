@@ -4,6 +4,7 @@ import (
 	"github.com/alfssobsd/minishop/usecases"
 	"github.com/alfssobsd/minishop/usecases/entities"
 	"github.com/labstack/echo"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -16,9 +17,9 @@ type MockGoodsUC struct {
 	usecases.GoodsUseCase
 }
 
-func (mcu MockGoodsUC) ShowGoodsDetailInfoUseCase(id string) (*entities.GoodsUseCaseEntity, error) {
+func (mcu MockGoodsUC) ShowGoodsDetailInfoUseCase(goodsId uuid.UUID) (*entities.GoodsUseCaseEntity, error) {
 	return &entities.GoodsUseCaseEntity{
-		GoodsId:         "c26e7e02-c1de-465d-88ff-b845abdc47f1",
+		GoodsId:         uuid.FromStringOrNil("c26e7e02-c1de-465d-88ff-b845abdc47f1"),
 		GoodsCodeName:   "0001",
 		GoodsTitle:      "Плющевый медведь",
 		GoodsDescrition: "Милый плющевый медведь",

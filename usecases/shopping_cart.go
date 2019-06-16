@@ -8,30 +8,36 @@ import (
 )
 
 type ShoppingCartUseCase interface {
-	AddGoodsToCartUseCase(customer string, goodsId string) error
-	RemoveGoodsFormCartUseCase(customer string, goodsId string) error
-	ShowCartUseCase(customer string) (*entities.ShoppingCartUseCaseEntity, error)
+	AddGoodsToCartUseCase(username string, goodsId uuid.UUID) error
+	RemoveGoodsFormCartUseCase(username string, goodsId uuid.UUID) error
+	ShowCartUseCase(username string) (*entities.ShoppingCartUseCaseEntity, error)
 }
 
 type shoppingCartUseCase struct {
 	goodsRepo _repo.GoodsRepository
 	orderRepo _repo.OrderRepository
+	custRepo  _repo.CustomerRepository
 }
 
-func NewShoppingCartUseCase(goodsRepository _repo.GoodsRepository, orderRepository _repo.OrderRepository) *shoppingCartUseCase {
-	return &shoppingCartUseCase{goodsRepository, orderRepository}
+func NewShoppingCartUseCase(goodsRepository _repo.GoodsRepository, orderRepository _repo.OrderRepository, custRepository _repo.CustomerRepository) *shoppingCartUseCase {
+	return &shoppingCartUseCase{goodsRepository, orderRepository, custRepository}
 }
 
-func (u *shoppingCartUseCase) AddGoodsToCartUseCase(customer string, goodsId string) error {
+func (u *shoppingCartUseCase) AddGoodsToCartUseCase(username string, goodsId uuid.UUID) error {
 	if u.goodsRepo.FindById(goodsId) == nil {
-		return errors.New("Incorrect goodsId = " + goodsId)
+		return errors.New("Incorrect goodsId = " + goodsId.String())
 	}
 
-	order := u.orderRepo.GetFirstActiveOrder(customer)
+	customer, err := u.custRepo.FindByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	order := u.orderRepo.GetFirstActiveOrder(customer.CustomerId)
 	if order == nil {
-		orderId := uuid.NewV4().String()
-		u.orderRepo.CreateOrder(customer, orderId)
-		order = u.orderRepo.GetFirstActiveOrder(customer)
+		orderId := uuid.NewV4()
+		u.orderRepo.CreateOrder(customer.CustomerId, orderId)
+		order = u.orderRepo.GetFirstActiveOrder(customer.CustomerId)
 	}
 
 	isNotAddedGoods := true
@@ -46,13 +52,19 @@ func (u *shoppingCartUseCase) AddGoodsToCartUseCase(customer string, goodsId str
 	if isNotAddedGoods {
 		u.orderRepo.AddGoods(order.OrderID, goodsId)
 	}
-	order = u.orderRepo.GetFirstActiveOrder(customer)
+	order = u.orderRepo.GetFirstActiveOrder(customer.CustomerId)
 
 	return nil
 }
 
-func (u *shoppingCartUseCase) RemoveGoodsFormCartUseCase(customer string, goodsId string) error {
-	order := u.orderRepo.GetFirstActiveOrder(customer)
+func (u *shoppingCartUseCase) RemoveGoodsFormCartUseCase(username string, goodsId uuid.UUID) error {
+
+	customer, err := u.custRepo.FindByUsername(username)
+	if err != nil {
+		return err
+	}
+
+	order := u.orderRepo.GetFirstActiveOrder(customer.CustomerId)
 	if order == nil {
 		return nil
 	}
@@ -66,10 +78,16 @@ func (u *shoppingCartUseCase) RemoveGoodsFormCartUseCase(customer string, goodsI
 	return nil
 }
 
-func (u *shoppingCartUseCase) ShowCartUseCase(customer string) (*entities.ShoppingCartUseCaseEntity, error) {
-	order := u.orderRepo.GetFirstActiveOrder(customer)
+func (u *shoppingCartUseCase) ShowCartUseCase(username string) (*entities.ShoppingCartUseCaseEntity, error) {
+	customer, err := u.custRepo.FindByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
+	order := u.orderRepo.GetFirstActiveOrder(customer.CustomerId)
+
 	if order == nil {
-		return &entities.ShoppingCartUseCaseEntity{Customer: customer, TotalPrice: float64(0), GoodsItems: []entities.ShoppingCartGoodsItemUseCaseEntity{}}, nil
+		return &entities.ShoppingCartUseCaseEntity{CustomerId: customer.CustomerId, TotalPrice: float64(0), GoodsItems: []entities.ShoppingCartGoodsItemUseCaseEntity{}}, nil
 	}
 
 	totalPrice := float64(0)
@@ -90,5 +108,5 @@ func (u *shoppingCartUseCase) ShowCartUseCase(customer string) (*entities.Shoppi
 		}
 	}
 
-	return &entities.ShoppingCartUseCaseEntity{Customer: customer, TotalPrice: totalPrice, GoodsItems: goodsItems}, nil
+	return &entities.ShoppingCartUseCaseEntity{CustomerId: customer.CustomerId, TotalPrice: totalPrice, GoodsItems: goodsItems}, nil
 }
