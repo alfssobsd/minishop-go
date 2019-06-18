@@ -3,12 +3,12 @@ package entities
 import uuid "github.com/satori/go.uuid"
 
 type ShoppingCartUseCaseEntity struct {
-	CustomerId uuid.UUID
-	TotalPrice float64
-	GoodsItems []ShoppingCartGoodsItemUseCaseEntity
+	CustomerId   uuid.UUID
+	TotalPrice   float64
+	ProductItems []ShoppingCartProductItemUseCaseEntity
 }
 
-type ShoppingCartGoodsItemUseCaseEntity struct {
-	Amount int
-	Goods  GoodsUseCaseEntity
+type ShoppingCartProductItemUseCaseEntity struct {
+	Amount  int
+	Product ProductUseCaseEntity
 }

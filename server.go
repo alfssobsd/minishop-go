@@ -15,7 +15,7 @@ func main() {
 
 	pgSession := _config.MakePostgresConnection()
 	_config.RunMigration(pgSession)
-	_controllers.GoodsRoutes(e, pgSession)
+	_controllers.ProductRoutes(e, pgSession)
 	_controllers.CartRoutes(e, pgSession)
 	_controllers.CustomerRoutes(e, pgSession)
 

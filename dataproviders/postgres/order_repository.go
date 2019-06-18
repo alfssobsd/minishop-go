@@ -11,10 +11,10 @@ import (
 type OrderRepository interface {
 	CreateOrder(customerId uuid.UUID, orderId uuid.UUID)
 	GetFirstActiveOrder(customerId uuid.UUID) *entities.OrderEntity
-	PlusAmount(orderId uuid.UUID, goodsId uuid.UUID, amount int)
-	MinusAmount(orderId uuid.UUID, goodsId uuid.UUID, amount int)
-	AddGoods(orderId uuid.UUID, goodsId uuid.UUID)
-	RemoveGoods(orderId uuid.UUID, goodsId uuid.UUID)
+	PlusAmount(orderId uuid.UUID, productId uuid.UUID, amount int)
+	MinusAmount(orderId uuid.UUID, productId uuid.UUID, amount int)
+	AddProduct(orderId uuid.UUID, productId uuid.UUID)
+	RemoveProduct(orderId uuid.UUID, productId uuid.UUID)
 }
 
 type orderRepository struct {
@@ -42,48 +42,48 @@ func (r *orderRepository) GetFirstActiveOrder(customerId uuid.UUID) *entities.Or
 		return nil
 	}
 
-	var orderGoods []*entities.OrderGoodsEntity
-	log.Info("Get list goods by orderID = ", order.OrderID)
-	err = r.db.Select(&orderGoods, "SELECT * from order_goods where order_uuid=$1", order.OrderID)
+	var orderProducts []*entities.OrderProductEntity
+	log.Info("Get list products by orderID = ", order.OrderID)
+	err = r.db.Select(&orderProducts, "SELECT * from order_products where order_uuid=$1", order.OrderID)
 	if err != nil {
 		log.Error(err)
 	}
 
 	//need optimisation!!!
-	log.Info("Get goods info by orderID = ", order.OrderID)
-	for _, element := range orderGoods {
-		log.Info("Search goodsID = ", element.GoodsId)
-		goodsItem := entities.GoodsEntity{}
+	log.Info("Get products info by orderID = ", order.OrderID)
+	for _, element := range orderProducts {
+		log.Info("Search productID = ", element.ProductId)
+		productItem := entities.ProductEntity{}
 		//need handling error!!!
-		err := r.db.Get(&goodsItem, "SELECT * FROM goods WHERE uuid=$1", element.GoodsId)
+		err := r.db.Get(&productItem, "SELECT * FROM products WHERE uuid=$1", element.ProductId)
 		if err == nil {
-			log.Info("Found goods = ", goodsItem)
+			log.Info("Found product = ", productItem)
 			order.OrderItems = append(order.OrderItems, entities.OrderItemEntity{
-				GoodsItem:   goodsItem,
-				GoodsAmount: element.GoodsAmount})
+				ProductItem:   productItem,
+				ProductAmount: element.ProductAmount})
 		}
 	}
 	return &order
 }
 
-func (r *orderRepository) PlusAmount(orderId uuid.UUID, goodsId uuid.UUID, amount int) {
-	log.Info("PlusAmount  goods = ", goodsId, " to order = ", orderId, " amount = ", strconv.Itoa(amount))
-	_ = r.db.MustExec("UPDATE order_goods SET goods_amount = goods_amount + $1  WHERE goods_uuid = $2 AND order_uuid = $3", amount, goodsId, orderId)
+func (r *orderRepository) PlusAmount(orderId uuid.UUID, productId uuid.UUID, amount int) {
+	log.Info("PlusAmount  product = ", productId, " to order = ", orderId, " amount = ", strconv.Itoa(amount))
+	_ = r.db.MustExec("UPDATE order_products SET product_amount = product_amount + $1  WHERE product_uuid = $2 AND order_uuid = $3", amount, productId, orderId)
 }
 
-func (r *orderRepository) MinusAmount(orderId uuid.UUID, goodsId uuid.UUID, amount int) {
-	log.Info("PlusAmount  goods = ", goodsId, " to order = ", orderId, " amount = ", strconv.Itoa(amount))
-	_ = r.db.MustExec("UPDATE order_goods SET goods_amount = goods_amount - $1  WHERE goods_uuid = $2 AND order_uuid = $3", amount, goodsId, orderId)
+func (r *orderRepository) MinusAmount(orderId uuid.UUID, productId uuid.UUID, amount int) {
+	log.Info("Minus  product = ", productId, " to order = ", orderId, " amount = ", strconv.Itoa(amount))
+	_ = r.db.MustExec("UPDATE order_products SET product_amount = product_amount - $1  WHERE product_uuid = $2 AND order_uuid = $3", amount, productId, orderId)
 }
 
-func (r *orderRepository) AddGoods(orderId uuid.UUID, goodsId uuid.UUID) {
-	//need refactoring, before add goods need check order status
-	log.Info("Add goods = ", goodsId, " to order = ", orderId)
-	_ = r.db.MustExec("INSERT INTO order_goods (goods_uuid, goods_amount, order_uuid) VALUES ($1, $2, $3) ON CONFLICT (goods_uuid, order_uuid) DO NOTHING", goodsId, 1, orderId)
+func (r *orderRepository) AddProduct(orderId uuid.UUID, productId uuid.UUID) {
+	//need refactoring, before add product need check order status
+	log.Info("Add product = ", productId, " to order = ", orderId)
+	_ = r.db.MustExec("INSERT INTO order_products (product_uuid, product_amount, order_uuid) VALUES ($1, $2, $3) ON CONFLICT (product_uuid, order_uuid) DO NOTHING", productId, 1, orderId)
 }
 
-func (r *orderRepository) RemoveGoods(orderId uuid.UUID, goodsId uuid.UUID) {
-	//need refactoring, before add goods need check order status
-	log.Info("Remove goods = ", goodsId, " from order = ", orderId)
-	_ = r.db.MustExec("DELETE FROM order_goods WHERE goods_uuid = $1 AND order_uuid = $2", goodsId, orderId)
+func (r *orderRepository) RemoveProduct(orderId uuid.UUID, productId uuid.UUID) {
+	//need refactoring, before add product need check order status
+	log.Info("Remove product = ", productId, " from order = ", orderId)
+	_ = r.db.MustExec("DELETE FROM order_products WHERE product_uuid = $1 AND order_uuid = $2", productId, orderId)
 }

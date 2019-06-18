@@ -19,7 +19,7 @@ func MakePostgresConnection() *sqlx.DB {
 func RunMigration(db *sqlx.DB) {
 	log.Info("Run DB Migration")
 	schema := `
-create table IF NOT EXISTS goods
+create table IF NOT EXISTS products
 (
     uuid uuid not null,
     title varchar not null,
@@ -29,17 +29,17 @@ create table IF NOT EXISTS goods
 	PRIMARY KEY (uuid)
 );
 
-create unique index IF NOT EXISTS goods_uuid_uindex
-    on goods (uuid);
+create unique index IF NOT EXISTS products_uuid_uindex
+    on products (uuid);
 
-create table IF NOT EXISTS order_goods
+create table IF NOT EXISTS order_products
 (
-	goods_uuid uuid not null,
-	goods_amount int default 1 not null,
+	product_uuid uuid not null,
+	product_amount int default 1 not null,
 	order_uuid uuid not null
 );
-create unique index IF NOT EXISTS order_goods_goods_uuid_order_uuid_uindex
-	on order_goods (goods_uuid, order_uuid);
+create unique index IF NOT EXISTS order_products_product_uuid_order_uuid_uindex
+	on order_products (product_uuid, order_uuid);
 
 create table IF NOT EXISTS orders
 (

@@ -12,34 +12,34 @@ import (
 //Create Routes for Cart
 func CartRoutes(e *echo.Echo, db *sqlx.DB) {
 	//create repos and usecases
-	goodsRepo := postgres.NewGoodsRepository(db)
+	productRepo := postgres.NewProductRepository(db)
 	orderRepo := postgres.NewOrderRepository(db)
 	custRepo := postgres.NewCustomerRepository(db)
-	cartUseCase := usecases.NewShoppingCartUseCase(goodsRepo, orderRepo, custRepo)
+	cartUseCase := usecases.NewShoppingCartUseCase(productRepo, orderRepo, custRepo)
 
 	e.GET("/api/v1/cart/:customer", func(c echo.Context) error {
 		return showCustomerCartController(c, cartUseCase)
 	})
 	e.POST("/api/v1/cart/:customer/add", func(c echo.Context) error {
-		return addGoodsToCustomerCartController(c, cartUseCase)
+		return addProductToCustomerCartController(c, cartUseCase)
 	})
 
 	e.POST("/api/v1/cart/:customer/remove", func(c echo.Context) error {
-		return removeGoodsFromCustomerCartController(c, cartUseCase)
+		return removeProductFromCustomerCartController(c, cartUseCase)
 	})
 }
 
-//Remove Goods from shopping cart
-func removeGoodsFromCustomerCartController(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
+//Remove Product from shopping cart
+func removeProductFromCustomerCartController(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
 	customer := c.Param("customer")
-	httpRequest := &entities.HttpShoppingCartAddGoodsRequestEntity{}
+	httpRequest := &entities.HttpShoppingCartAddProductRequestEntity{}
 	if err := c.Bind(httpRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, entities.HttpActionResponseEntity{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
-	if err := cartUseCase.RemoveGoodsFormCartUseCase(customer, httpRequest.GoodsId); err != nil {
+	if err := cartUseCase.RemoveProductFormCartUseCase(customer, httpRequest.ProductId); err != nil {
 		return c.JSON(http.StatusBadRequest, entities.HttpActionResponseEntity{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -52,17 +52,17 @@ func removeGoodsFromCustomerCartController(c echo.Context, cartUseCase usecases.
 	})
 }
 
-//add Goods to shopping cart
-func addGoodsToCustomerCartController(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
+//add Product to shopping cart
+func addProductToCustomerCartController(c echo.Context, cartUseCase usecases.ShoppingCartUseCase) error {
 	customer := c.Param("customer")
-	httpRequest := &entities.HttpShoppingCartAddGoodsRequestEntity{}
+	httpRequest := &entities.HttpShoppingCartAddProductRequestEntity{}
 	if err := c.Bind(httpRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, entities.HttpActionResponseEntity{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
 		})
 	}
-	if err := cartUseCase.AddGoodsToCartUseCase(customer, httpRequest.GoodsId); err != nil {
+	if err := cartUseCase.AddProductToCartUseCase(customer, httpRequest.ProductId); err != nil {
 		return c.JSON(http.StatusBadRequest, entities.HttpActionResponseEntity{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -81,25 +81,25 @@ func showCustomerCartController(c echo.Context, cartUseCase usecases.ShoppingCar
 	cart, _ := cartUseCase.ShowCartUseCase(customer)
 
 	items := []entities.HttpShoppingCartItemsResponseEntity{}
-	totalGoods := 0
-	for _, element := range cart.GoodsItems {
+	totalProducts := 0
+	for _, element := range cart.ProductItems {
 		items = append(items, entities.HttpShoppingCartItemsResponseEntity{
-			Goods: entities.HttpGoodsResponseEntity{
-				GoodsId:          element.Goods.GoodsId,
-				GoodsCodeName:    element.Goods.GoodsCodeName,
-				GoodsTitle:       element.Goods.GoodsTitle,
-				GoodsDescription: element.Goods.GoodsDescrition,
-				GoodsPrice:       element.Goods.GoodsPrice,
+			Product: entities.HttpProductResponseEntity{
+				ProductId:          element.Product.ProductId,
+				ProductCodeName:    element.Product.ProductCodeName,
+				ProductTitle:       element.Product.ProductTitle,
+				ProductDescription: element.Product.ProductDescrition,
+				ProductPrice:       element.Product.ProductPrice,
 			},
 			Amount: element.Amount,
 		})
-		totalGoods += element.Amount
+		totalProducts += element.Amount
 	}
 
 	return c.JSON(http.StatusOK, entities.HttpShoppingCartResponseEntity{
-		CustomerId: cart.CustomerId,
-		TotalGoods: totalGoods,
-		TotalPrice: cart.TotalPrice,
-		Items:      items,
+		CustomerId:    cart.CustomerId,
+		TotalProducts: totalProducts,
+		TotalPrice:    cart.TotalPrice,
+		Items:         items,
 	})
 }

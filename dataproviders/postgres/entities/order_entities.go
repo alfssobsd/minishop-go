@@ -17,12 +17,12 @@ type OrderEntity struct {
 }
 
 type OrderItemEntity struct {
-	GoodsItem   GoodsEntity
-	GoodsAmount int
+	ProductItem   ProductEntity
+	ProductAmount int
 }
 
-type OrderGoodsEntity struct {
-	OrderID     uuid.UUID `db:"order_uuid"`
-	GoodsId     uuid.UUID `db:"goods_uuid"`
-	GoodsAmount int       `db:"goods_amount"`
+type OrderProductEntity struct {
+	OrderID       uuid.UUID `db:"order_uuid"`
+	ProductId     uuid.UUID `db:"product_uuid"`
+	ProductAmount int       `db:"product_amount"`
 }

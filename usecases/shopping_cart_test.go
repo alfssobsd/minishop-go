@@ -13,8 +13,8 @@ type MockOrderRepo struct {
 	postgres.OrderRepository
 }
 
-type MockGoodsRepo struct {
-	postgres.GoodsRepository
+type MockProductRepo struct {
+	postgres.ProductRepository
 }
 
 type MockCustRepo struct {
@@ -34,14 +34,14 @@ func (r *MockCustRepo) FindByUsername(username string) (*entities2.CustomerEntit
 }
 
 func TestShoppingCartUseCase_ShowCartUseCase_NoOneOrder(t *testing.T) {
-	cartUC := NewShoppingCartUseCase(&MockGoodsRepo{}, &MockOrderRepo{}, &MockCustRepo{})
+	cartUC := NewShoppingCartUseCase(&MockProductRepo{}, &MockOrderRepo{}, &MockCustRepo{})
 
 	cart, _ := cartUC.ShowCartUseCase("sergei")
 
 	assert.Equal(t, cart, &entities.ShoppingCartUseCaseEntity{
-		CustomerId: uuid.FromStringOrNil("1eaf8908-9bac-47ac-ab1b-e9f188d1caaa"),
-		TotalPrice: float64(0),
-		GoodsItems: []entities.ShoppingCartGoodsItemUseCaseEntity{}})
+		CustomerId:   uuid.FromStringOrNil("1eaf8908-9bac-47ac-ab1b-e9f188d1caaa"),
+		TotalPrice:   float64(0),
+		ProductItems: []entities.ShoppingCartProductItemUseCaseEntity{}})
 }
 
 type MockOrderRepoEmptyOrder struct {
@@ -57,13 +57,13 @@ func (r *MockOrderRepoEmptyOrder) GetFirstActiveOrder(customerId uuid.UUID) *ent
 }
 
 func TestShoppingCartUseCase_ShowCartUseCase_EmptyOrder(t *testing.T) {
-	cartUC := NewShoppingCartUseCase(&MockGoodsRepo{}, &MockOrderRepoEmptyOrder{}, &MockCustRepo{})
+	cartUC := NewShoppingCartUseCase(&MockProductRepo{}, &MockOrderRepoEmptyOrder{}, &MockCustRepo{})
 
 	cart, _ := cartUC.ShowCartUseCase("sergei")
 	assert.Equal(t, cart, &entities.ShoppingCartUseCaseEntity{
-		CustomerId: uuid.FromStringOrNil("1eaf8908-9bac-47ac-ab1b-e9f188d1caaa"),
-		TotalPrice: float64(0),
-		GoodsItems: []entities.ShoppingCartGoodsItemUseCaseEntity{}})
+		CustomerId:   uuid.FromStringOrNil("1eaf8908-9bac-47ac-ab1b-e9f188d1caaa"),
+		TotalPrice:   float64(0),
+		ProductItems: []entities.ShoppingCartProductItemUseCaseEntity{}})
 }
 
 type MockOrderRepoOneItemTwoAmount struct {
@@ -73,14 +73,14 @@ type MockOrderRepoOneItemTwoAmount struct {
 func (r *MockOrderRepoOneItemTwoAmount) GetFirstActiveOrder(customerId uuid.UUID) *entities2.OrderEntity {
 	items := []entities2.OrderItemEntity{}
 	items = append(items, entities2.OrderItemEntity{
-		GoodsItem: entities2.GoodsEntity{
-			GoodsID:         uuid.FromStringOrNil("2d98c5f9-2a4c-4286-921a-1c2a7c92a451"),
-			GoodsCodeName:   "TOY04",
-			GoodsTitle:      "Little Toy1",
-			GoodsDescrition: "Description L Toy1",
-			GoodsPrice:      10.3,
+		ProductItem: entities2.ProductEntity{
+			ProductID:         uuid.FromStringOrNil("2d98c5f9-2a4c-4286-921a-1c2a7c92a451"),
+			ProductCodeName:   "TOY04",
+			ProductTitle:      "Little Toy1",
+			ProductDescrition: "Description L Toy1",
+			ProductPrice:      10.3,
 		},
-		GoodsAmount: 2,
+		ProductAmount: 2,
 	})
 	return &entities2.OrderEntity{OrderID: uuid.FromStringOrNil("cadceb09-308a-4c60-9def-94c435e77be3"),
 		OrderStatus:     entities2.OrderStatusActive,
@@ -89,22 +89,22 @@ func (r *MockOrderRepoOneItemTwoAmount) GetFirstActiveOrder(customerId uuid.UUID
 }
 
 func TestShoppingCartUseCase_ShowCartUseCase_OneItemTwoAmount(t *testing.T) {
-	cartUC := NewShoppingCartUseCase(&MockGoodsRepo{}, &MockOrderRepoOneItemTwoAmount{}, &MockCustRepo{})
+	cartUC := NewShoppingCartUseCase(&MockProductRepo{}, &MockOrderRepoOneItemTwoAmount{}, &MockCustRepo{})
 
 	cart, _ := cartUC.ShowCartUseCase("sergei")
-	items := []entities.ShoppingCartGoodsItemUseCaseEntity{}
-	items = append(items, entities.ShoppingCartGoodsItemUseCaseEntity{
-		Goods: entities.GoodsUseCaseEntity{
-			GoodsId:         uuid.FromStringOrNil("2d98c5f9-2a4c-4286-921a-1c2a7c92a451"),
-			GoodsCodeName:   "TOY04",
-			GoodsTitle:      "Little Toy1",
-			GoodsDescrition: "Description L Toy1",
-			GoodsPrice:      10.3,
+	items := []entities.ShoppingCartProductItemUseCaseEntity{}
+	items = append(items, entities.ShoppingCartProductItemUseCaseEntity{
+		Product: entities.ProductUseCaseEntity{
+			ProductId:         uuid.FromStringOrNil("2d98c5f9-2a4c-4286-921a-1c2a7c92a451"),
+			ProductCodeName:   "TOY04",
+			ProductTitle:      "Little Toy1",
+			ProductDescrition: "Description L Toy1",
+			ProductPrice:      10.3,
 		},
 		Amount: 2,
 	})
 	assert.Equal(t, cart, &entities.ShoppingCartUseCaseEntity{
-		CustomerId: uuid.FromStringOrNil("1eaf8908-9bac-47ac-ab1b-e9f188d1caaa"),
-		TotalPrice: 20.6,
-		GoodsItems: items})
+		CustomerId:   uuid.FromStringOrNil("1eaf8908-9bac-47ac-ab1b-e9f188d1caaa"),
+		TotalPrice:   20.6,
+		ProductItems: items})
 }

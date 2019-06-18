@@ -8,24 +8,24 @@ import (
 )
 
 type ShoppingCartUseCase interface {
-	AddGoodsToCartUseCase(username string, goodsId uuid.UUID) error
-	RemoveGoodsFormCartUseCase(username string, goodsId uuid.UUID) error
+	AddProductToCartUseCase(username string, productId uuid.UUID) error
+	RemoveProductFormCartUseCase(username string, productId uuid.UUID) error
 	ShowCartUseCase(username string) (*entities.ShoppingCartUseCaseEntity, error)
 }
 
 type shoppingCartUseCase struct {
-	goodsRepo _repo.GoodsRepository
-	orderRepo _repo.OrderRepository
-	custRepo  _repo.CustomerRepository
+	productRepo _repo.ProductRepository
+	orderRepo   _repo.OrderRepository
+	custRepo    _repo.CustomerRepository
 }
 
-func NewShoppingCartUseCase(goodsRepository _repo.GoodsRepository, orderRepository _repo.OrderRepository, custRepository _repo.CustomerRepository) *shoppingCartUseCase {
-	return &shoppingCartUseCase{goodsRepository, orderRepository, custRepository}
+func NewShoppingCartUseCase(productRepository _repo.ProductRepository, orderRepository _repo.OrderRepository, custRepository _repo.CustomerRepository) *shoppingCartUseCase {
+	return &shoppingCartUseCase{productRepository, orderRepository, custRepository}
 }
 
-func (u *shoppingCartUseCase) AddGoodsToCartUseCase(username string, goodsId uuid.UUID) error {
-	if u.goodsRepo.FindById(goodsId) == nil {
-		return errors.New("Incorrect goodsId = " + goodsId.String())
+func (u *shoppingCartUseCase) AddProductToCartUseCase(username string, productId uuid.UUID) error {
+	if u.productRepo.FindById(productId) == nil {
+		return errors.New("Incorrect productId = " + productId.String())
 	}
 
 	customer, err := u.custRepo.FindByUsername(username)
@@ -40,24 +40,24 @@ func (u *shoppingCartUseCase) AddGoodsToCartUseCase(username string, goodsId uui
 		order = u.orderRepo.GetFirstActiveOrder(customer.CustomerId)
 	}
 
-	isNotAddedGoods := true
+	isNotAddedProduct := true
 	for _, element := range order.OrderItems {
-		if element.GoodsItem.GoodsID == goodsId {
-			u.orderRepo.PlusAmount(order.OrderID, goodsId, 1)
-			isNotAddedGoods = false
+		if element.ProductItem.ProductID == productId {
+			u.orderRepo.PlusAmount(order.OrderID, productId, 1)
+			isNotAddedProduct = false
 			break
 		}
 	}
 
-	if isNotAddedGoods {
-		u.orderRepo.AddGoods(order.OrderID, goodsId)
+	if isNotAddedProduct {
+		u.orderRepo.AddProduct(order.OrderID, productId)
 	}
 	order = u.orderRepo.GetFirstActiveOrder(customer.CustomerId)
 
 	return nil
 }
 
-func (u *shoppingCartUseCase) RemoveGoodsFormCartUseCase(username string, goodsId uuid.UUID) error {
+func (u *shoppingCartUseCase) RemoveProductFormCartUseCase(username string, productId uuid.UUID) error {
 
 	customer, err := u.custRepo.FindByUsername(username)
 	if err != nil {
@@ -70,8 +70,8 @@ func (u *shoppingCartUseCase) RemoveGoodsFormCartUseCase(username string, goodsI
 	}
 
 	for _, element := range order.OrderItems {
-		if element.GoodsItem.GoodsID == goodsId {
-			u.orderRepo.RemoveGoods(order.OrderID, goodsId)
+		if element.ProductItem.ProductID == productId {
+			u.orderRepo.RemoveProduct(order.OrderID, productId)
 			break
 		}
 	}
@@ -87,26 +87,26 @@ func (u *shoppingCartUseCase) ShowCartUseCase(username string) (*entities.Shoppi
 	order := u.orderRepo.GetFirstActiveOrder(customer.CustomerId)
 
 	if order == nil {
-		return &entities.ShoppingCartUseCaseEntity{CustomerId: customer.CustomerId, TotalPrice: float64(0), GoodsItems: []entities.ShoppingCartGoodsItemUseCaseEntity{}}, nil
+		return &entities.ShoppingCartUseCaseEntity{CustomerId: customer.CustomerId, TotalPrice: float64(0), ProductItems: []entities.ShoppingCartProductItemUseCaseEntity{}}, nil
 	}
 
 	totalPrice := float64(0)
-	goodsItems := []entities.ShoppingCartGoodsItemUseCaseEntity{}
+	productItems := []entities.ShoppingCartProductItemUseCaseEntity{}
 	for _, element := range order.OrderItems {
-		goodsItems = append(goodsItems, entities.ShoppingCartGoodsItemUseCaseEntity{
-			Goods: entities.GoodsUseCaseEntity{
-				GoodsId:         element.GoodsItem.GoodsID,
-				GoodsCodeName:   element.GoodsItem.GoodsCodeName,
-				GoodsDescrition: element.GoodsItem.GoodsDescrition,
-				GoodsTitle:      element.GoodsItem.GoodsTitle,
-				GoodsPrice:      element.GoodsItem.GoodsPrice,
+		productItems = append(productItems, entities.ShoppingCartProductItemUseCaseEntity{
+			Product: entities.ProductUseCaseEntity{
+				ProductId:         element.ProductItem.ProductID,
+				ProductCodeName:   element.ProductItem.ProductCodeName,
+				ProductDescrition: element.ProductItem.ProductDescrition,
+				ProductTitle:      element.ProductItem.ProductTitle,
+				ProductPrice:      element.ProductItem.ProductPrice,
 			},
-			Amount: element.GoodsAmount,
+			Amount: element.ProductAmount,
 		})
-		for i := 0; i < element.GoodsAmount; i++ {
-			totalPrice += element.GoodsItem.GoodsPrice
+		for i := 0; i < element.ProductAmount; i++ {
+			totalPrice += element.ProductItem.ProductPrice
 		}
 	}
 
-	return &entities.ShoppingCartUseCaseEntity{CustomerId: customer.CustomerId, TotalPrice: totalPrice, GoodsItems: goodsItems}, nil
+	return &entities.ShoppingCartUseCaseEntity{CustomerId: customer.CustomerId, TotalPrice: totalPrice, ProductItems: productItems}, nil
 }

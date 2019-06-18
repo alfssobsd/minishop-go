@@ -30,7 +30,7 @@ func TestOrderRepository_GetFirstActiveOrder(t *testing.T) {
 	fmt.Println(order)
 }
 
-func TestOrderRepository_AddGoods(t *testing.T) {
+func TestOrderRepository_AddProduct(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -39,12 +39,12 @@ func TestOrderRepository_AddGoods(t *testing.T) {
 	customerRepository := NewCustomerRepository(db)
 	customer, _ := customerRepository.FindByUsername("sergei")
 	order := orderRepository.GetFirstActiveOrder(customer.CustomerId)
-	orderRepository.AddGoods(order.OrderID, uuid.FromStringOrNil("2d98c5f9-2a4c-4286-921a-1c2a7c92a451"))
+	orderRepository.AddProduct(order.OrderID, uuid.FromStringOrNil("2d98c5f9-2a4c-4286-921a-1c2a7c92a451"))
 	order = orderRepository.GetFirstActiveOrder(customer.CustomerId)
 	fmt.Println(order)
 }
 
-func TestOrderRepository_RemoveGoods(t *testing.T) {
+func TestOrderRepository_RemoveProduct(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -53,7 +53,7 @@ func TestOrderRepository_RemoveGoods(t *testing.T) {
 	customerRepository := NewCustomerRepository(db)
 	customer, _ := customerRepository.FindByUsername("sergei")
 	order := orderRepository.GetFirstActiveOrder(customer.CustomerId)
-	orderRepository.RemoveGoods(order.OrderID, uuid.FromStringOrNil("2d98c5f9-2a4c-4286-921a-1c2a7c92a451"))
+	orderRepository.RemoveProduct(order.OrderID, uuid.FromStringOrNil("2d98c5f9-2a4c-4286-921a-1c2a7c92a451"))
 	order = orderRepository.GetFirstActiveOrder(customer.CustomerId)
 	fmt.Println(order)
 }
